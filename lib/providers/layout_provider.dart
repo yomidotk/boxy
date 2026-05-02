@@ -110,9 +110,6 @@ class LayoutProvider extends ChangeNotifier {
       return; // V21: Drop Guard
     }
 
-    int count = (_typeCounters[type] ?? 0) + 1;
-    _typeCounters[type] = count;
-
     String id = _generateId(type);
     Size size = LayoutItem.getDefaultSize(type);
 

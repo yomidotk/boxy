@@ -253,7 +253,7 @@ class LayoutItem extends ChangeNotifier {
       case ItemType.card:
         return const Size(300, 180);
       case ItemType.logo:
-        return const Size(80, 80);
+        return const Size(167, 50);
       case ItemType.navBar:
         return const Size(800, 60); // Wide by default
       case ItemType.dropdown:

@@ -133,7 +133,7 @@ class LayoutProvider extends ChangeNotifier {
     switch (type) {
       case ItemType.button: return "Click Me";
       case ItemType.text: return "Label";
-      case ItemType.logo: return "BRAND";
+      case ItemType.logo: return "Logo";
       case ItemType.search: return "Search...";
       case ItemType.input: return "Placeholder";
       case ItemType.checkbox: return "Label";

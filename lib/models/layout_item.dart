@@ -50,6 +50,9 @@ class LayoutItem extends ChangeNotifier {
   // V22: Dropdown Items
   List<String> _dropdownItems;
 
+  // List Items (rows for the list widget)
+  List<String> _listItems;
+
   // V23: Theme Colors
   Color? _backgroundColor;
   Color? _textColor;
@@ -71,6 +74,7 @@ class LayoutItem extends ChangeNotifier {
   double get fontSize => _fontSize;
   bool get isFullWidth => _isFullWidth;
   List<String> get dropdownItems => _dropdownItems;
+  List<String> get listItems => _listItems;
   Color? get backgroundColor => _backgroundColor;
   Color? get textColor => _textColor;
   Color? get iconColor => _iconColor;
@@ -147,6 +151,11 @@ class LayoutItem extends ChangeNotifier {
     notifyListeners();
   }
 
+  set listItems(List<String> value) {
+    _listItems = value;
+    notifyListeners();
+  }
+
   set backgroundColor(Color? value) {
     if (_backgroundColor == value) return;
     _backgroundColor = value;
@@ -193,6 +202,7 @@ class LayoutItem extends ChangeNotifier {
       fontSize: _fontSize,
       isFullWidth: _isFullWidth,
       dropdownItems: List<String>.from(_dropdownItems),
+      listItems: List<String>.from(_listItems),
       backgroundColor: _backgroundColor,
       textColor: _textColor,
       iconColor: _iconColor,
@@ -216,6 +226,7 @@ class LayoutItem extends ChangeNotifier {
     double fontSize = 16.0,
     bool isFullWidth = false,
     List<String> dropdownItems = const ["Option 1", "Option 2"],
+    List<String> listItems = const ["Inbox", "Sent", "Drafts", "Archived"],
     Color? backgroundColor,
     Color? textColor,
     Color? iconColor,
@@ -233,6 +244,7 @@ class LayoutItem extends ChangeNotifier {
         _fontSize = fontSize,
         _isFullWidth = isFullWidth,
         _dropdownItems = dropdownItems,
+        _listItems = listItems,
         _backgroundColor = backgroundColor,
         _textColor = textColor,
         _iconColor = iconColor,

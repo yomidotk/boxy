@@ -266,13 +266,67 @@ class CanvasItemWidget extends StatelessWidget {
           ],
         );
       case ItemType.list:
+        final listBg = item.backgroundColor ?? Colors.white;
+        final listText = item.textColor ?? Colors.black87;
+        final listSubtle = listText.withValues(alpha: 0.45);
+        final listIconBg = listText.withValues(alpha: 0.08);
+        final dividerColor = listText.withValues(alpha: 0.08);
         return Container(
           decoration: BoxDecoration(
-            color: item.backgroundColor ?? Colors.white, 
-            border: Border.all(color: item.borderColor ?? Colors.grey[200]!),
+            color: listBg,
+            border: Border.all(color: item.borderColor ?? Colors.grey.shade200),
             borderRadius: BorderRadius.circular(item.borderRadius),
           ),
-          child: Center(child: Text(item.textContent, style: TextStyle(color: item.textColor ?? Colors.black))),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(item.borderRadius),
+            child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              itemCount: item.listItems.length,
+              separatorBuilder: (_, __) => Divider(height: 1, thickness: 1, color: dividerColor, indent: 48),
+              itemBuilder: (_, index) {
+                final entry = item.listItems[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: listIconBg,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Icon(Icons.inbox_outlined, size: 15, color: listText),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          entry,
+                          style: TextStyle(
+                            color: listText,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${9 + index}:00 AM',
+                        style: TextStyle(
+                          color: listSubtle,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
         );
       
       // V24: New Tools UI

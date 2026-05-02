@@ -217,6 +217,13 @@ class LayoutProvider extends ChangeNotifier {
     }
   }
 
+  void updateListItems(String id, List<String> newItems) {
+    final itemIndex = _items.indexWhere((i) => i.id == id);
+    if (itemIndex != -1) {
+      _items[itemIndex].listItems = newItems;
+    }
+  }
+
   void updateBorderRadius(String id, double radius) {
     final index = _items.indexWhere((i) => i.id == id);
     if (index != -1) {

@@ -222,6 +222,11 @@ class PropertiesPanel extends StatelessWidget {
                 ..._buildDropdownItemsList(context, provider, selectedItem),
               ],
 
+              if (selectedItem.type == ItemType.list) ...[
+                _buildSectionTitle("LIST ROWS"),
+                ..._buildListItemsList(context, provider, selectedItem),
+              ],
+
               const SizedBox(height: 30),
               _buildDuplicateButton(provider, selectedItem),
               const SizedBox(height: 10),
@@ -613,6 +618,132 @@ class PropertiesPanel extends StatelessWidget {
         ),
       ),
     ];
+  }
+
+  List<Widget> _buildListItemsList(
+    BuildContext context,
+    LayoutProvider provider,
+    LayoutItem item,
+  ) {
+    return <Widget>[
+      ...item.listItems.asMap().entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Row(
+            children: [
+              const Icon(Icons.drag_indicator, color: Colors.white24, size: 16),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  entry.value,
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: Colors.white54, size: 16),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                onPressed: () => _showEditListItemDialog(context, provider, item, entry.key, entry.value),
+              ),
+              IconButton(
+                icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent, size: 16),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                onPressed: () {
+                  final newItems = List<String>.from(item.listItems)..removeAt(entry.key);
+                  provider.updateListItems(item.id, newItems);
+                },
+              ),
+            ],
+          ),
+        );
+      }),
+      const SizedBox(height: 4),
+      OutlinedButton.icon(
+        onPressed: () => _showAddListItemDialog(context, provider, item),
+        icon: const Icon(Icons.add, size: 14, color: Colors.white),
+        label: const Text("Add Row", style: TextStyle(color: Colors.white, fontSize: 12)),
+        style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white24)),
+      ),
+    ];
+  }
+
+  void _showEditListItemDialog(
+    BuildContext context,
+    LayoutProvider provider,
+    LayoutItem item,
+    int index,
+    String currentValue,
+  ) {
+    final controller = TextEditingController(text: currentValue);
+    showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        title: const Text("Edit Row", style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: "Row title",
+            hintStyle: TextStyle(color: Colors.white24),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                final newItems = List<String>.from(item.listItems);
+                newItems[index] = controller.text;
+                provider.updateListItems(item.id, newItems);
+                Navigator.pop(c);
+              }
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddListItemDialog(
+    BuildContext context,
+    LayoutProvider provider,
+    LayoutItem item,
+  ) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        title: const Text("Add Row", style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: "Row title",
+            hintStyle: TextStyle(color: Colors.white24),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                final newItems = List<String>.from(item.listItems)..add(controller.text);
+                provider.updateListItems(item.id, newItems);
+                Navigator.pop(c);
+              }
+            },
+            child: const Text("Add"),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showAddDropdownItemDialog(

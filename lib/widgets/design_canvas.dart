@@ -208,23 +208,32 @@ class _DesignCanvasState extends State<DesignCanvas> {
                               clipBehavior: Clip.none,
                               alignment: Alignment.topCenter,
                               children: [
-                              // 1. The Static Page Visuals (White Box + Dots)
-                              Container(
-                                width: 800,
-                                height: 2000,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 20,
-                                      offset: Offset(0, 10),
+                              // 1. The Static Page Visuals (Theme BG + Dots)
+                              Consumer<LayoutProvider>(
+                                builder: (context, provider, _) {
+                                  final bg = provider.currentTheme.background;
+                                  final lum = bg.computeLuminance();
+                                  final dotColor = lum > 0.5
+                                      ? Colors.black.withAlpha(35)
+                                      : Colors.white.withAlpha(35);
+                                  return Container(
+                                    width: 800,
+                                    height: 2000,
+                                    decoration: BoxDecoration(
+                                      color: bg,
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 20,
+                                          offset: Offset(0, 10),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: CustomPaint(
-                                  painter: DotGridPainter(),
-                                ),
+                                    child: CustomPaint(
+                                      painter: DotGridPainter(dotColor: dotColor),
+                                    ),
+                                  );
+                                },
                               ),
 
                               // 2. The Items and Selection Layer (Overlaying the Page but not restricted by it)
@@ -308,10 +317,14 @@ class _DesignCanvasState extends State<DesignCanvas> {
 }
 
 class DotGridPainter extends CustomPainter {
+  final Color dotColor;
+
+  const DotGridPainter({this.dotColor = const Color(0x22000000)});
+
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
-      ..color = Colors.grey[300]!
+      ..color = dotColor
       ..style = PaintingStyle.fill;
 
     const double step = 20.0;
@@ -324,5 +337,5 @@ class DotGridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(DotGridPainter oldDelegate) => oldDelegate.dotColor != dotColor;
 }

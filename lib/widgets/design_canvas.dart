@@ -30,18 +30,22 @@ class _DesignCanvasState extends State<DesignCanvas> {
   }
 
   void _centerView() {
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
+    final viewportBox = context.findRenderObject() as RenderBox?;
+    if (viewportBox == null) return;
+    final viewportSize = viewportBox.size;
 
-    final viewportSize = renderBox.size;
+    final pageBox = _pageKey.currentContext?.findRenderObject() as RenderBox?;
+    if (pageBox == null) return;
 
-    const double padding = 100.0;
-    const double canvasWidth = 5000.0;
-    const double pageWidth = 800.0;
-    const double headerHeight = 40.0;
+    // _pageKey's Stack is 5000px wide; the 800px page is topCenter-aligned within it.
+    // Find _pageKey's origin in the viewport's local coordinate system.
+    final pageTopLeft = viewportBox.globalToLocal(pageBox.localToGlobal(Offset.zero));
 
-    final double pageCenterX = padding + canvasWidth / 2;
-    final double pageCenterY = padding + headerHeight + 1000.0;
+    // Center X of the 800px page = center of the 5000px stack
+    final double pageCenterX = pageTopLeft.dx + pageBox.size.width / 2;
+
+    // Show the top quarter of the page — place the page's top edge ~20% down from viewport top
+    final double pageCenterY = pageTopLeft.dy + viewportSize.height * 0.2;
 
     final double tx = viewportSize.width / 2 - pageCenterX;
     final double ty = viewportSize.height / 2 - pageCenterY;

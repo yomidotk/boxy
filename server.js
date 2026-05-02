@@ -9,6 +9,7 @@ const WEB_DIR = path.join(__dirname, 'build', 'web');
 const mimeTypes = {
   '.html': 'text/html',
   '.js': 'application/javascript',
+  '.mjs': 'application/javascript',
   '.css': 'text/css',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -25,7 +26,12 @@ const mimeTypes = {
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url);
-  const pathname = parsedUrl.pathname;
+  let pathname = parsedUrl.pathname;
+
+  // Redirect chromium canvaskit variant to full variant (dynamic import compat)
+  if (pathname.includes('/canvaskit/chromium/')) {
+    pathname = pathname.replace('/canvaskit/chromium/', '/canvaskit/');
+  }
 
   let filePath = path.join(WEB_DIR, pathname === '/' ? 'index.html' : pathname);
 
@@ -36,13 +42,26 @@ const server = http.createServer((req, res) => {
   const ext = path.extname(filePath);
   const contentType = mimeTypes[ext] || 'application/octet-stream';
 
+  const headers = {
+    'Content-Type': contentType,
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+  };
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, headers);
+    res.end();
+    return;
+  }
+
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(404);
+      res.writeHead(404, headers);
       res.end('Not Found');
       return;
     }
-    res.writeHead(200, { 'Content-Type': contentType });
+    res.writeHead(200, headers);
     res.end(data);
   });
 });

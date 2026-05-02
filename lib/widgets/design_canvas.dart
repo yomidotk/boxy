@@ -31,24 +31,31 @@ class _DesignCanvasState extends State<DesignCanvas> {
 
   void _centerView() {
     final viewportBox = context.findRenderObject() as RenderBox?;
-    if (viewportBox == null) return;
+    if (viewportBox == null || viewportBox.size.isEmpty) {
+      // Not laid out yet (e.g. still in splash transition) — retry next frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _centerView();
+      });
+      return;
+    }
+
     final viewportSize = viewportBox.size;
 
-    final pageBox = _pageKey.currentContext?.findRenderObject() as RenderBox?;
-    if (pageBox == null) return;
+    // Known layout constants that match the widget tree below
+    const double padding = 100.0;      // Padding widget around the Column
+    const double headerHeight = 40.0;  // Browser chrome bar
+    const double stackWidth = 5000.0;  // _pageKey Stack explicit width
 
-    // _pageKey's Stack is 5000px wide; the 800px page is topCenter-aligned within it.
-    // Find _pageKey's origin in the viewport's local coordinate system.
-    final pageTopLeft = viewportBox.globalToLocal(pageBox.localToGlobal(Offset.zero));
+    // The 800px white page is topCenter-aligned inside the 5000px stack.
+    // Its center X in content-space = padding + stackWidth / 2
+    const double pageCenterX = padding + stackWidth / 2; // 2600
 
-    // Center X of the 800px page = center of the 5000px stack
-    final double pageCenterX = pageTopLeft.dx + pageBox.size.width / 2;
+    // Top edge of the page in content-space
+    const double pageTopY = padding + headerHeight; // 140
 
-    // Show the top quarter of the page — place the page's top edge ~20% down from viewport top
-    final double pageCenterY = pageTopLeft.dy + viewportSize.height * 0.2;
-
+    // Place the page horizontally centered and its top ~15% down from the viewport top
     final double tx = viewportSize.width / 2 - pageCenterX;
-    final double ty = viewportSize.height / 2 - pageCenterY;
+    final double ty = viewportSize.height * 0.15 - pageTopY;
 
     _transformationController.value = Matrix4.translationValues(tx, ty, 0);
   }

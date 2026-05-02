@@ -570,111 +570,206 @@ class _ChartPainter extends CustomPainter {
   final Color color;
   final Color bgColor;
 
-  static const _values = [0.40, 0.80, 0.55, 1.0, 0.65, 0.30, 0.90];
+  // Realistic fake data
+  static const _labels  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+  static const _rawVals = [42.0, 78.0, 55.0, 91.0, 63.0, 38.0, 85.0]; // out of 100
+  static const _pieLabels = ['Direct', 'Social', 'Search', 'Email', 'Other'];
+  static const _pieSegs   = [0.31, 0.23, 0.19, 0.14, 0.13];
+  static const _pieAlphas = [1.0, 0.72, 0.52, 0.36, 0.22];
 
   _ChartPainter({required this.type, required this.color, required this.bgColor});
+
+  TextPainter _tp(String text, double size, Color c, {bool bold = false}) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: c,
+          fontSize: size,
+          fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
+          fontFamily: 'sans-serif',
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    return tp;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     switch (type) {
-      case ChartType.bar:
-        _drawBar(canvas, size);
-        break;
-      case ChartType.line:
-        _drawLine(canvas, size);
-        break;
-      case ChartType.pie:
-        _drawPie(canvas, size);
-        break;
+      case ChartType.bar:  _drawBar(canvas, size);  break;
+      case ChartType.line: _drawLine(canvas, size); break;
+      case ChartType.pie:  _drawPie(canvas, size);  break;
     }
   }
 
   void _drawBar(Canvas canvas, Size size) {
-    final count = _values.length;
-    final barW = (size.width / count) * 0.55;
-    final gap = size.width / count;
-    for (int i = 0; i < count; i++) {
-      final h = size.height * _values[i];
-      final x = gap * i + (gap - barW) / 2;
-      final y = size.height - h;
-      final paint = Paint()
-        ..color = color.withValues(alpha: 0.3 + _values[i] * 0.7)
-        ..style = PaintingStyle.fill;
-      final rRect = RRect.fromRectAndRadius(
-        Rect.fromLTWH(x, y, barW, h),
-        const Radius.circular(3),
+    const labelH = 14.0;
+    const leftPad = 26.0;
+    final chartH = size.height - labelH - 4;
+    final chartW = size.width - leftPad;
+
+    final labelColor = color.withValues(alpha: 0.45);
+    final gridColor  = color.withValues(alpha: 0.08);
+
+    // Y-axis grid lines + labels: 0, 25, 50, 75, 100
+    for (final v in [0, 25, 50, 75, 100]) {
+      final y = chartH - (chartH * v / 100);
+      canvas.drawLine(
+        Offset(leftPad, y), Offset(size.width, y),
+        Paint()..color = gridColor..strokeWidth = 1,
       );
-      canvas.drawRRect(rRect, paint);
+      final tp = _tp('$v', 7.5, labelColor);
+      tp.paint(canvas, Offset(leftPad - tp.width - 3, y - tp.height / 2));
+    }
+
+    // Bars
+    final count = _rawVals.length;
+    final gap   = chartW / count;
+    final barW  = gap * 0.52;
+    for (int i = 0; i < count; i++) {
+      final v = _rawVals[i] / 100;
+      final h = chartH * v;
+      final x = leftPad + gap * i + (gap - barW) / 2;
+      final y = chartH - h;
+      final paint = Paint()
+        ..color = color.withValues(alpha: 0.35 + v * 0.65)
+        ..style  = PaintingStyle.fill;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(x, y, barW, h), const Radius.circular(3)),
+        paint,
+      );
+      // value label on top of bar
+      final vtp = _tp('${_rawVals[i].toInt()}', 7.5, color.withValues(alpha: 0.7), bold: true);
+      vtp.paint(canvas, Offset(x + barW / 2 - vtp.width / 2, y - vtp.height - 1));
+
+      // x-axis label
+      final ltp = _tp(_labels[i], 8, labelColor);
+      ltp.paint(canvas, Offset(x + barW / 2 - ltp.width / 2, chartH + 3));
     }
   }
 
   void _drawLine(Canvas canvas, Size size) {
-    final count = _values.length;
+    const labelH = 14.0;
+    const leftPad = 26.0;
+    final chartH = size.height - labelH - 4;
+    final chartW = size.width - leftPad;
+
+    final labelColor = color.withValues(alpha: 0.45);
+    final gridColor  = color.withValues(alpha: 0.08);
+
+    // Grid lines
+    for (final v in [0, 25, 50, 75, 100]) {
+      final y = chartH - (chartH * v / 100);
+      canvas.drawLine(
+        Offset(leftPad, y), Offset(size.width, y),
+        Paint()..color = gridColor..strokeWidth = 1,
+      );
+      final tp = _tp('$v', 7.5, labelColor);
+      tp.paint(canvas, Offset(leftPad - tp.width - 3, y - tp.height / 2));
+    }
+
+    final count = _rawVals.length;
     final pts = List.generate(count, (i) {
-      final x = (size.width / (count - 1)) * i;
-      final y = size.height - size.height * _values[i];
+      final x = leftPad + (chartW / (count - 1)) * i;
+      final y = chartH - chartH * (_rawVals[i] / 100);
       return Offset(x, y);
     });
 
-    // Fill area under curve
-    final fillPath = Path()..moveTo(0, size.height);
+    // Fill
+    final fillPath = Path()..moveTo(leftPad, chartH);
     fillPath.lineTo(pts[0].dx, pts[0].dy);
     for (int i = 0; i < pts.length - 1; i++) {
-      final cp1 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i].dy);
-      final cp2 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i + 1].dy);
-      fillPath.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, pts[i + 1].dx, pts[i + 1].dy);
+      final cp1 = Offset((pts[i].dx + pts[i+1].dx) / 2, pts[i].dy);
+      final cp2 = Offset((pts[i].dx + pts[i+1].dx) / 2, pts[i+1].dy);
+      fillPath.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, pts[i+1].dx, pts[i+1].dy);
     }
-    fillPath.lineTo(size.width, size.height);
+    fillPath.lineTo(size.width, chartH);
     fillPath.close();
-    canvas.drawPath(fillPath, Paint()..color = color.withValues(alpha: 0.15)..style = PaintingStyle.fill);
+    canvas.drawPath(fillPath, Paint()..color = color.withValues(alpha: 0.12)..style = PaintingStyle.fill);
 
     // Stroke
     final linePath = Path()..moveTo(pts[0].dx, pts[0].dy);
     for (int i = 0; i < pts.length - 1; i++) {
-      final cp1 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i].dy);
-      final cp2 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i + 1].dy);
-      linePath.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, pts[i + 1].dx, pts[i + 1].dy);
+      final cp1 = Offset((pts[i].dx + pts[i+1].dx) / 2, pts[i].dy);
+      final cp2 = Offset((pts[i].dx + pts[i+1].dx) / 2, pts[i+1].dy);
+      linePath.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, pts[i+1].dx, pts[i+1].dy);
     }
     canvas.drawPath(linePath, Paint()
-      ..color = color
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round);
+      ..color = color..strokeWidth = 2
+      ..style = PaintingStyle.stroke..strokeCap = StrokeCap.round);
 
-    // Dots
-    for (final pt in pts) {
-      canvas.drawCircle(pt, 3, Paint()..color = bgColor..style = PaintingStyle.fill);
-      canvas.drawCircle(pt, 3, Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 1.5);
+    // Dots + value labels
+    for (int i = 0; i < pts.length; i++) {
+      final pt = pts[i];
+      canvas.drawCircle(pt, 3.5, Paint()..color = bgColor..style = PaintingStyle.fill);
+      canvas.drawCircle(pt, 3.5, Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 1.5);
+
+      // x-axis label
+      final ltp = _tp(_labels[i], 8, labelColor);
+      ltp.paint(canvas, Offset(pt.dx - ltp.width / 2, chartH + 3));
+      // value above dot
+      final vtp = _tp('${_rawVals[i].toInt()}', 7.5, color.withValues(alpha: 0.75), bold: true);
+      vtp.paint(canvas, Offset(pt.dx - vtp.width / 2, pt.dy - vtp.height - 4));
     }
   }
 
   void _drawPie(Canvas canvas, Size size) {
-    final segments = [0.30, 0.22, 0.18, 0.15, 0.15];
+    const legendH = 36.0;
+    final pieSize = size.height - legendH;
     final cx = size.width / 2;
-    final cy = size.height / 2;
-    final r = (size.width < size.height ? size.width : size.height) / 2 * 0.88;
-    double startAngle = -1.5708; // -pi/2
-    final alphas = [1.0, 0.7, 0.5, 0.35, 0.2];
-    for (int i = 0; i < segments.length; i++) {
-      final sweep = segments[i] * 6.2832;
-      final paint = Paint()
-        ..color = color.withValues(alpha: alphas[i])
-        ..style = PaintingStyle.fill;
+    final cy = pieSize / 2;
+    final r  = (size.width < pieSize ? size.width : pieSize) / 2 * 0.82;
+
+    double startAngle = -1.5708;
+    for (int i = 0; i < _pieSegs.length; i++) {
+      final sweep = _pieSegs[i] * 6.2832;
       canvas.drawArc(
         Rect.fromCircle(center: Offset(cx, cy), radius: r),
-        startAngle, sweep, true, paint,
+        startAngle, sweep, true,
+        Paint()..color = color.withValues(alpha: _pieAlphas[i])..style = PaintingStyle.fill,
       );
-      // white divider
       canvas.drawArc(
         Rect.fromCircle(center: Offset(cx, cy), radius: r),
         startAngle, sweep, true,
         Paint()..color = bgColor..style = PaintingStyle.stroke..strokeWidth = 1.5,
       );
+
+      // percentage label inside segment (only if big enough)
+      if (_pieSegs[i] > 0.12) {
+        final midAngle = startAngle + sweep / 2;
+        final labelR = r * 0.68;
+        final lx = cx + labelR * cos(midAngle);
+        final ly = cy + labelR * sin(midAngle);
+        final pct = '${(_pieSegs[i] * 100).round()}%';
+        final tp = _tp(pct, 8, bgColor, bold: true);
+        tp.paint(canvas, Offset(lx - tp.width / 2, ly - tp.height / 2));
+      }
+
       startAngle += sweep;
     }
-    // donut hole
-    canvas.drawCircle(Offset(cx, cy), r * 0.42,
-      Paint()..color = bgColor..style = PaintingStyle.fill);
+    // donut hole with total label
+    canvas.drawCircle(Offset(cx, cy), r * 0.40, Paint()..color = bgColor..style = PaintingStyle.fill);
+    final totalTp = _tp('Total', 7, color.withValues(alpha: 0.5));
+    totalTp.paint(canvas, Offset(cx - totalTp.width / 2, cy - totalTp.height - 1));
+    final valTp = _tp('8.4k', 11, color, bold: true);
+    valTp.paint(canvas, Offset(cx - valTp.width / 2, cy + 1));
+
+    // Legend row at bottom
+    final itemW = size.width / _pieLabels.length;
+    for (int i = 0; i < _pieLabels.length; i++) {
+      final lx = itemW * i + itemW / 2;
+      final ly = size.height - legendH + 6;
+      // dot
+      canvas.drawCircle(
+        Offset(lx - 12, ly + 5),
+        4,
+        Paint()..color = color.withValues(alpha: _pieAlphas[i])..style = PaintingStyle.fill,
+      );
+      final ltp = _tp(_pieLabels[i], 7.5, color.withValues(alpha: 0.6));
+      ltp.paint(canvas, Offset(lx - 8, ly));
+    }
   }
 
   @override

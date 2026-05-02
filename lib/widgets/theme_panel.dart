@@ -102,6 +102,53 @@ class _ThemePanelState extends State<ThemePanel> {
               label: const Text("Generate Random Palette"),
             ),
           ),
+          if (theme.name.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: theme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: theme.surface,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white12),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: theme.background,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white12),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    theme.name,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ],
           
           const SizedBox(height: 30),
           

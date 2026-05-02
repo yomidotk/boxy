@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class ThemePalette {
+  final String name;
   final Color primary;
   final Color background;
   final Color surface;
@@ -9,6 +9,7 @@ class ThemePalette {
   final Color textLight;
 
   ThemePalette({
+    this.name = '',
     required this.primary,
     required this.background,
     required this.surface,
@@ -18,57 +19,60 @@ class ThemePalette {
 
   // Smart contrast helper
   Color getContrastText(Color backgroundColor) {
-    // Use Flutter's built-in computeLuminance which correctly handles sRGB colorspace
     double luminance = backgroundColor.computeLuminance();
-    // 0.5 is a standard midpoint. If the background is light, return dark text.
     return luminance > 0.5 ? textDark : textLight;
   }
 
-  // Generate a random harmonious palette
+  static Color _hex(String hex) {
+    hex = hex.replaceAll('#', '');
+    if (hex.length == 6) hex = 'FF$hex';
+    return Color(int.parse(hex, radix: 16));
+  }
+
+  static ThemePalette _make(String name, String primary, String surface, String background) {
+    final bg = _hex(background);
+    return ThemePalette(
+      name: name,
+      primary: _hex(primary),
+      surface: _hex(surface),
+      background: bg,
+      textDark: const Color(0xFF1A1A1A),
+      textLight: Colors.white,
+    );
+  }
+
+  static final List<ThemePalette> presets = [
+    _make('Boxy Default',       '#A855F7', '#2D2131', '#1C161D'),
+    _make('Linear Minimal',     '#000000', '#FFFFFF', '#F7F7F8'),
+    _make('Supabase Hacker',    '#3ECF8E', '#1C1C1C', '#121212'),
+    _make('Cyberpunk 2077',     '#FCE205', '#20202B', '#0B0B12'),
+    _make('Lofi Study',         '#D4A373', '#FAEDCD', '#FEFAE0'),
+    _make('Midnight Ocean',     '#38BDF8', '#1E293B', '#0F172A'),
+    _make('Matcha Aesthetic',   '#6B9080', '#EAF4F4', '#F6FFF8'),
+    _make('Dracula',            '#FF79C6', '#44475A', '#282A36'),
+    _make('Synthwave',          '#FF007F', '#2A1B3D', '#11001C'),
+    _make('Sakura Pink',        '#FF99AC', '#FFF0F3', '#FFFFFF'),
+    _make('Gruvbox',            '#FABD2F', '#3C3836', '#282828'),
+    _make('Stripe Blurple',     '#635BFF', '#FFFFFF', '#F6F9FC'),
+    _make('Nord Frost',         '#88C0D0', '#3B4252', '#2E3440'),
+    _make('Brutalism',          '#FFFFFF', '#1A1A1A', '#000000'),
+    _make('Outrun Vaporwave',   '#00FFFF', '#30005A', '#1A0033'),
+    _make('Autumn Rust',        '#E07A5F', '#3D405B', '#2B2D42'),
+    _make('Lavender Cloud',     '#8338EC', '#FFFFFF', '#F8F9FA'),
+    _make('Coral Reef',         '#FF6B6B', '#292F36', '#1A1E24'),
+    _make('Solarized Light',    '#268BD2', '#EEE8D5', '#FDF6E3'),
+    _make('OLED Blood',         '#FF2A2A', '#111111', '#000000'),
+  ];
+
+  // Cycles through presets sequentially on each call
+  static int _presetIndex = 0;
+
   factory ThemePalette.random() {
-    final random = math.Random();
-    
-    // Generate a random hue
-    double h = random.nextDouble() * 360;
-    
-    // Helper to generate color from HSL
-    Color fromHSL(double h, double s, double l) {
-      return HSLColor.fromAHSL(1.0, h, s, l).toColor();
-    }
-
-    bool isDarkTheme = random.nextBool();
-
-    // Primary: Vibrant
-    Color primary = fromHSL(h, 0.7 + random.nextDouble() * 0.3, 0.4 + random.nextDouble() * 0.2);
-    
-    Color surface;
-    Color background;
-    
-    if (isDarkTheme) {
-      background = fromHSL(h, 0.15, 0.10); // Very dark
-      surface = fromHSL(h, 0.2, 0.16);     // Slightly lighter dark
-    } else {
-      background = fromHSL(h, 0.1, 0.98);  // Very light
-      surface = fromHSL(h, 0.15, 0.95);    // Slightly darker light
-    }
-
-    return ThemePalette(
-      primary: primary,
-      background: background,
-      surface: surface,
-      textDark: const Color(0xFF1A1A1A), // Off-black
-      textLight: Colors.white,
-    );
+    final palette = presets[_presetIndex % presets.length];
+    _presetIndex = (_presetIndex + 1) % presets.length;
+    return palette;
   }
 
-  // Default Boxy Theme
-  factory ThemePalette.boxy() {
-    return ThemePalette(
-      primary: const Color(0xFF8B3DFF), // Boxy Purple
-      background: Colors.grey[50]!,
-      surface: Colors.white,
-      textDark: Colors.black,
-      textLight: Colors.white,
-    );
-  }
+  // Default Boxy Theme (palette #1)
+  factory ThemePalette.boxy() => presets[0];
 }

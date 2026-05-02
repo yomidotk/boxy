@@ -1,0 +1,59 @@
+// 1. Boxy Default (The Vibe Coder Purple)
+  BoxyTheme(primary: '#A855F7', surface: '#2D2131', background: '#1C161D'),
+  
+  // 2. Linear Minimal (Clean SaaS Light)
+  BoxyTheme(primary: '#000000', surface: '#FFFFFF', background: '#F7F7F8'),
+  
+  // 3. Supabase Hacker (Neon Green on Dark)
+  BoxyTheme(primary: '#3ECF8E', surface: '#1C1C1C', background: '#121212'),
+  
+  // 4. Cyberpunk 2077 (High Contrast Neon)
+  BoxyTheme(primary: '#FCE205', surface: '#20202B', background: '#0B0B12'),
+  
+  // 5. Lofi Study (Warm Muted Pastels)
+  BoxyTheme(primary: '#D4A373', surface: '#FAEDCD', background: '#FEFAE0'),
+
+  // 6. Midnight Ocean (Calming Dark Blue)
+  BoxyTheme(primary: '#38BDF8', surface: '#1E293B', background: '#0F172A'),
+  
+  // 7. Matcha Aesthetic (Soft Greens)
+  BoxyTheme(primary: '#6B9080', surface: '#EAF4F4', background: '#F6FFF8'),
+  
+  // 8. Dracula (The Classic Dev Theme)
+  BoxyTheme(primary: '#FF79C6', surface: '#44475A', background: '#282A36'),
+  
+  // 9. Synthwave (Retrowave Pink/Purple)
+  BoxyTheme(primary: '#FF007F', surface: '#2A1B3D', background: '#11001C'),
+  
+  // 10. Sakura Pink (Light Aesthetic)
+  BoxyTheme(primary: '#FF99AC', surface: '#FFF0F3', background: '#FFFFFF'),
+
+  // 11. Gruvbox (Warm Terminal Dark)
+  BoxyTheme(primary: '#FABD2F', surface: '#3C3836', background: '#282828'),
+  
+  // 12. Stripe Blurple (Professional SaaS)
+  BoxyTheme(primary: '#635BFF', surface: '#FFFFFF', background: '#F6F9FC'),
+  
+  // 13. Nord Frost (Cool Ice Dark)
+  BoxyTheme(primary: '#88C0D0', surface: '#3B4252', background: '#2E3440'),
+  
+  // 14. Brutalism (Pure Monochrome Dark)
+  BoxyTheme(primary: '#FFFFFF', surface: '#1A1A1A', background: '#000000'),
+  
+  // 15. Outrun Vaporwave (Cyan on Deep Purple)
+  BoxyTheme(primary: '#00FFFF', surface: '#30005A', background: '#1A0033'),
+
+  // 16. Autumn Rust (Cozy Dark)
+  BoxyTheme(primary: '#E07A5F', surface: '#3D405B', background: '#2B2D42'),
+  
+  // 17. Lavender Cloud (Soft Modern Light)
+  BoxyTheme(primary: '#8338EC', surface: '#FFFFFF', background: '#F8F9FA'),
+  
+  // 18. Coral Reef (Vibrant Dark)
+  BoxyTheme(primary: '#FF6B6B', surface: '#292F36', background: '#1A1E24'),
+  
+  // 19. Solarized Light (Warm Paper)
+  BoxyTheme(primary: '#268BD2', surface: '#EEE8D5', background: '#FDF6E3'),
+  
+  // 20. OLED Blood (True Black & Red)
+  BoxyTheme(primary: '#FF2A2A', surface: '#111111', background: '#000000'),

@@ -110,13 +110,13 @@ body {
 .boxy-table th, .boxy-table td {
   padding: 8px 12px;
   text-align: left;
-  border-bottom: 1px solid currentColor;
-  opacity: 0.85;
+  border-bottom: 1px solid rgba(0,0,0,0.09);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: inherit;
 }
-.boxy-table th { font-weight: 700; opacity: 1; }
+.boxy-table th { font-weight: 700; }
 .boxy-table tr:last-child td { border-bottom: none; }
 
 /* ── Pricing Card ── */
@@ -428,7 +428,11 @@ body {
           break;
 
         case ItemType.profileImage:
-          content = '<div style="font-size:40px;color:${_colorToCss(item.iconColor, '#888888')}">👤</div>';
+          final pfpColor = _colorToCss(item.iconColor, '#9E9E9E');
+          content = '<svg viewBox="0 0 24 24" width="60%" height="60%" fill="$pfpColor" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"/>'
+            '<path d="M12 14c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>'
+            '</svg>';
           break;
 
         case ItemType.chart:

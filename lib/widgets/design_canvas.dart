@@ -267,14 +267,17 @@ class _DesignCanvasState extends State<DesignCanvas> {
                                           return ListenableBuilder(
                                             listenable: selectedItem,
                                             builder: (context, child) {
+                                              final bgColor = context
+                                                  .select<LayoutProvider, Color>(
+                                                (p) => p.currentTheme.background,
+                                              );
                                               return IgnorePointer(
                                                 child: CustomPaint(
                                                   painter: BlueprintPainter(
                                                     selectedItem: selectedItem,
-                                                    allItems: provider
-                                                        .items, 
-                                                    showDimensions: provider
-                                                        .showDimensions,
+                                                    allItems: provider.items,
+                                                    showDimensions: provider.showDimensions,
+                                                    backgroundColor: bgColor,
                                                   ),
                                                   size: const Size(5000, 2000),
                                                 ),

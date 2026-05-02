@@ -73,6 +73,15 @@ class ThemePalette {
     return palette;
   }
 
-  // Default Boxy Theme (palette #1)
-  factory ThemePalette.boxy() => presets[0];
+  // Default Boxy Theme — white page background, purple primary
+  factory ThemePalette.boxy() {
+    return ThemePalette(
+      name: '',
+      primary: const Color(0xFF8B3DFF),
+      surface: Colors.white,
+      background: Colors.white,
+      textDark: const Color(0xFF1A1A1A),
+      textLight: Colors.white,
+    );
+  }
 }

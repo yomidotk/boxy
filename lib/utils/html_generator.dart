@@ -163,6 +163,11 @@ body {
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};");
           css.writeln("  border: 1px solid ${_colorToCss(item.borderColor, '#DDDDDD')};");
           css.writeln("  color: ${_colorToCss(item.textColor, '#000000')};");
+          css.writeln("  flex-direction: column;");
+          css.writeln("  align-items: stretch;");
+          css.writeln("  justify-content: flex-start;");
+          css.writeln("  overflow: hidden;");
+          css.writeln("  padding: 4px 0;");
           break;
         case ItemType.profileImage:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#EEEEEE')};");
@@ -291,6 +296,25 @@ body {
           break;
         case ItemType.gallery:
           content = '<div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div><div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div><div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div><div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div>';
+          break;
+        case ItemType.list:
+          final textHex = _colorToCss(item.textColor, '#000000');
+          final iconBg = 'rgba(0,0,0,0.06)';
+          final dividerColor = 'rgba(0,0,0,0.07)';
+          final rows = item.listItems.asMap().entries.map((e) {
+            final hour = 9 + e.key;
+            final timeLabel = '$hour:00 AM';
+            final isLast = e.key == item.listItems.length - 1;
+            final divider = isLast ? '' : '<div style="height:1px; background:$dividerColor; margin-left:48px;"></div>';
+            return '<div style="display:flex; align-items:center; padding:7px 10px; gap:10px;">'
+              '<div style="width:28px; height:28px; flex-shrink:0; background:$iconBg; border-radius:6px; display:flex; align-items:center; justify-content:center;">'
+                '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="$textHex" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>'
+              '</div>'
+              '<span style="flex:1; font-weight:700; font-size:13px; color:$textHex; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${e.value}</span>'
+              '<span style="font-size:10px; color:$textHex; opacity:0.45; flex-shrink:0;">$timeLabel</span>'
+            '</div>$divider';
+          }).join('');
+          content = rows;
           break;
         default:
           content = item.textContent.isNotEmpty ? item.textContent : item.type.name.toUpperCase();

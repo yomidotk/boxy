@@ -573,9 +573,15 @@ class _ChartPainter extends CustomPainter {
   // Realistic fake data
   static const _labels  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
   static const _rawVals = [42.0, 78.0, 55.0, 91.0, 63.0, 38.0, 85.0]; // out of 100
-  static const _pieLabels = ['Direct', 'Social', 'Search', 'Email', 'Other'];
-  static const _pieSegs   = [0.31, 0.23, 0.19, 0.14, 0.13];
-  static const _pieAlphas = [1.0, 0.72, 0.52, 0.36, 0.22];
+  static const _pieLabels  = ['Direct', 'Social', 'Search', 'Email', 'Other'];
+  static const _pieSegs    = [0.31, 0.23, 0.19, 0.14, 0.13];
+  static const _pieColors  = [
+    Color(0xFF6C63FF), // violet
+    Color(0xFF3ECFCF), // teal
+    Color(0xFFFF6584), // pink-red
+    Color(0xFFFFA849), // amber
+    Color(0xFF4CAF7D), // green
+  ];
 
   _ChartPainter({required this.type, required this.color, required this.bgColor});
 
@@ -720,7 +726,7 @@ class _ChartPainter extends CustomPainter {
     final pieSize = size.height - legendH;
     final cx = size.width / 2;
     final cy = pieSize / 2;
-    final r  = (size.width < pieSize ? size.width : pieSize) / 2 * 0.82;
+    final r  = (size.width < pieSize ? size.width : pieSize) / 2 * 0.95;
 
     double startAngle = -1.5708;
     for (int i = 0; i < _pieSegs.length; i++) {
@@ -728,22 +734,22 @@ class _ChartPainter extends CustomPainter {
       canvas.drawArc(
         Rect.fromCircle(center: Offset(cx, cy), radius: r),
         startAngle, sweep, true,
-        Paint()..color = color.withValues(alpha: _pieAlphas[i])..style = PaintingStyle.fill,
+        Paint()..color = _pieColors[i]..style = PaintingStyle.fill,
       );
       canvas.drawArc(
         Rect.fromCircle(center: Offset(cx, cy), radius: r),
         startAngle, sweep, true,
-        Paint()..color = bgColor..style = PaintingStyle.stroke..strokeWidth = 1.5,
+        Paint()..color = bgColor..style = PaintingStyle.stroke..strokeWidth = 2,
       );
 
       // percentage label inside segment (only if big enough)
       if (_pieSegs[i] > 0.12) {
         final midAngle = startAngle + sweep / 2;
-        final labelR = r * 0.68;
+        final labelR = r * 0.70;
         final lx = cx + labelR * cos(midAngle);
         final ly = cy + labelR * sin(midAngle);
         final pct = '${(_pieSegs[i] * 100).round()}%';
-        final tp = _tp(pct, 8, bgColor, bold: true);
+        final tp = _tp(pct, 8.5, Colors.white, bold: true);
         tp.paint(canvas, Offset(lx - tp.width / 2, ly - tp.height / 2));
       }
 
@@ -761,11 +767,10 @@ class _ChartPainter extends CustomPainter {
     for (int i = 0; i < _pieLabels.length; i++) {
       final lx = itemW * i + itemW / 2;
       final ly = size.height - legendH + 6;
-      // dot
       canvas.drawCircle(
         Offset(lx - 12, ly + 5),
         4,
-        Paint()..color = color.withValues(alpha: _pieAlphas[i])..style = PaintingStyle.fill,
+        Paint()..color = _pieColors[i]..style = PaintingStyle.fill,
       );
       final ltp = _tp(_pieLabels[i], 7.5, color.withValues(alpha: 0.6));
       ltp.paint(canvas, Offset(lx - 8, ly));

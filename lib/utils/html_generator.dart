@@ -475,11 +475,12 @@ body {
               final segs = [0.30, 0.22, 0.18, 0.15, 0.15];
               final cx2 = chartW / 2;
               final cy2 = chartH / 2;
-              final r2 = (chartW < chartH ? chartW : chartH) / 2 * 0.88;
-              final r2i = r2 * 0.42;
+              final r2 = (chartW < chartH ? chartW : chartH) / 2 * 0.95;
+              final r2i = r2 * 0.40;
+              const pieColors = ['#6C63FF', '#3ECFCF', '#FF6584', '#FFA849', '#4CAF7D'];
+              final bgHex = _colorToCss(item.backgroundColor, '#fff');
               String arcs = '';
               double angle = -1.5708;
-              final opacities = [1.0, 0.7, 0.5, 0.35, 0.2];
               for (int si = 0; si < segs.length; si++) {
                 final sweep = segs[si] * 6.2832;
                 final x1 = cx2 + r2 * cos(angle);
@@ -488,10 +489,22 @@ body {
                 final y2 = cy2 + r2 * sin(angle + sweep);
                 final largeArc = sweep > 3.1416 ? 1 : 0;
                 arcs += '<path d="M $cx2 $cy2 L ${x1.toStringAsFixed(2)} ${y1.toStringAsFixed(2)} A $r2 $r2 0 $largeArc 1 ${x2.toStringAsFixed(2)} ${y2.toStringAsFixed(2)} Z" '
-                  'fill="$cHex" opacity="${opacities[si]}" stroke="${_colorToCss(item.backgroundColor, '#fff')}" stroke-width="1.5"/>';
+                  'fill="${pieColors[si]}" stroke="$bgHex" stroke-width="2"/>';
+                // pct label inside segment if large enough
+                if (segs[si] > 0.12) {
+                  final mid = angle + sweep / 2;
+                  final lr = r2 * 0.70;
+                  final lx2 = cx2 + lr * cos(mid);
+                  final ly2 = cy2 + lr * sin(mid);
+                  final pct = '${(segs[si] * 100).round()}%';
+                  arcs += '<text x="${lx2.toStringAsFixed(1)}" y="${ly2.toStringAsFixed(1)}" text-anchor="middle" dominant-baseline="central" '
+                    'font-size="9" font-weight="bold" fill="white" font-family="sans-serif">$pct</text>';
+                }
                 angle += sweep;
               }
-              arcs += '<circle cx="$cx2" cy="$cy2" r="$r2i" fill="${_colorToCss(item.backgroundColor, '#fff')}"/>';
+              arcs += '<circle cx="$cx2" cy="$cy2" r="$r2i" fill="$bgHex"/>';
+              arcs += '<text x="$cx2" y="${(cy2 - 6).toStringAsFixed(1)}" text-anchor="middle" font-size="7" fill="$cHex" opacity="0.5" font-family="sans-serif">Total</text>';
+              arcs += '<text x="$cx2" y="${(cy2 + 7).toStringAsFixed(1)}" text-anchor="middle" font-size="11" font-weight="bold" fill="$cHex" font-family="sans-serif">8.4k</text>';
               content = '<strong style="font-size:12px;">Analytics</strong>'
                 '<svg width="${chartW.toStringAsFixed(0)}" height="${chartH.toStringAsFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:block;">$arcs</svg>';
               break;

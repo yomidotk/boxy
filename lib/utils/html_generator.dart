@@ -11,12 +11,12 @@ class HtmlGenerator {
     StringBuffer html = StringBuffer();
     StringBuffer css = StringBuffer();
 
-    // specific: Reset & Container CSS
     css.writeln("""
+*, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0;
   padding: 50px;
-  background-color: #f0f2f5; /* V22: Light Blue Grey verify BG */
+  background-color: #f0f2f5;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   display: flex;
   justify-content: center;
@@ -34,7 +34,130 @@ body {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  pointer-events: auto; /* Ensure events pass through if needed */
+}
+
+/* ── Button reset ── */
+.boxy-item.boxy-button {
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ── Input / Search ── */
+.boxy-inner-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  color: inherit;
+}
+
+/* ── Checkbox ── */
+.boxy-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+}
+.boxy-checkbox-label input[type=checkbox] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #8B3DFF;
+}
+
+/* ── Toggle ── */
+.boxy-toggle-track {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: background 0.2s;
+  user-select: none;
+}
+.boxy-toggle-thumb {
+  height: calc(100% - 0px);
+  aspect-ratio: 1;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+.boxy-toggle-track.off { justify-content: flex-start; background: #ccc !important; }
+.boxy-toggle-track.on  { justify-content: flex-end; }
+
+/* ── Table ── */
+.boxy-table {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+.boxy-table th, .boxy-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.boxy-table th { font-weight: 700; opacity: 1; }
+.boxy-table tr:last-child td { border-bottom: none; }
+
+/* ── Pricing Card ── */
+.boxy-pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  width: 100%;
+  text-align: left;
+  font-size: 13px;
+}
+.boxy-pricing-features li {
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.boxy-pricing-features li::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: #22c55e;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-size: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.boxy-pricing-btn {
+  margin-top: auto;
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
 }
 """);
 
@@ -46,16 +169,12 @@ body {
     html.writeln('<title>Boxy Pro Export</title>');
     html.writeln('<style>');
 
-    // Generate Item CSS
     for (int i = 0; i < items.length; i++) {
       final item = items[i];
-      String id = "item-${item.id}";
+      final String id = "item-${item.id}";
       css.writeln("#$id {");
-      
-      // V22: Core Leveling
       css.writeln("  z-index: ${i + 1};");
 
-      // Position & Size
       if (item.isFullWidth) {
         css.writeln("  left: 0;");
         css.writeln("  width: 800px;");
@@ -66,17 +185,13 @@ body {
       css.writeln("  top: ${item.position.dy}px;");
       css.writeln("  height: ${item.size.height}px;");
 
-      // Rotation
       if (item.rotation != 0) {
         css.writeln("  transform: rotate(${item.rotation}deg);");
       }
-
-      // Border Radius
       if (item.borderRadius > 0 && item.type != ItemType.text) {
         css.writeln("  border-radius: ${item.borderRadius}px;");
       }
 
-      // Styling based on Type
       switch (item.type) {
         case ItemType.box:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};");
@@ -130,17 +245,17 @@ body {
         case ItemType.search:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#F8F8F8')};");
           css.writeln("  border: 1px solid ${_colorToCss(item.borderColor, '#DDDDDD')};");
-          css.writeln("  padding: 0 15px;");
           css.writeln("  color: ${_colorToCss(item.textColor, '#888888')};");
+          css.writeln("  padding: 0 8px 0 12px;");
+          css.writeln("  gap: 6px;");
           break;
         case ItemType.input:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};");
           css.writeln("  border: 1px solid ${_colorToCss(item.borderColor, '#DDDDDD')};");
-          css.writeln("  padding: 0 15px;");
           css.writeln("  color: ${_colorToCss(item.textColor, '#666666')};");
+          css.writeln("  padding: 0 15px;");
           break;
         case ItemType.checkbox:
-          css.writeln("  gap: 10px;");
           css.writeln("  color: ${_colorToCss(item.textColor, '#000000')};");
           break;
         case ItemType.card:
@@ -186,15 +301,16 @@ body {
         case ItemType.toggle:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#2196F3')};");
           css.writeln("  border-radius: ${item.size.height / 2}px;");
-          css.writeln("  justify-content: flex-end;");
-          css.writeln("  padding: 4px;");
+          css.writeln("  padding: 0;");
           break;
         case ItemType.table:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};");
           css.writeln("  border-radius: ${item.borderRadius}px;");
           css.writeln("  border: 1px solid ${_colorToCss(item.borderColor, '#DDDDDD')};");
           css.writeln("  color: ${_colorToCss(item.textColor, '#000000')};");
-          css.writeln("  flex-direction: column;");
+          css.writeln("  overflow: hidden;");
+          css.writeln("  display: block;");
+          css.writeln("  padding: 0;");
           break;
         case ItemType.pricingCard:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};");
@@ -202,9 +318,10 @@ body {
           if (item.borderColor != null) css.writeln("  border: 1px solid ${_colorToCss(item.borderColor, 'transparent')};");
           css.writeln("  box-shadow: 0 4px 15px rgba(0,0,0,0.08);");
           css.writeln("  color: ${_colorToCss(item.textColor, '#000000')};");
-          css.writeln("  padding: 24px;");
+          css.writeln("  padding: 20px;");
           css.writeln("  flex-direction: column;");
           css.writeln("  align-items: center;");
+          css.writeln("  overflow: hidden;");
           break;
         case ItemType.sidebar:
           css.writeln("  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};");
@@ -240,9 +357,8 @@ body {
     html.writeln('<body>');
     html.writeln('<div class="boxy-wrapper">');
 
-    // Generate HTML Nodes
     for (var item in items) {
-      String id = "item-${item.id}";
+      final String id = "item-${item.id}";
       String content = "";
       String tag = "div";
 
@@ -250,80 +366,157 @@ body {
         case ItemType.text:
           content = item.textContent;
           break;
+
         case ItemType.button:
           tag = "button";
           content = item.textContent;
           break;
+
         case ItemType.logo:
-          content = '<span style="color: ${_colorToCss(item.iconColor, '#FFB300')}; font-size: 1.2em;">★</span> <span>${item.textContent}</span>';
+          content = '<span style="color:${_colorToCss(item.iconColor, '#FFB300')};font-size:1.2em;">★</span>'
+            '<span>${item.textContent}</span>';
           break;
+
+        case ItemType.input:
+          content = '<input type="text" class="boxy-inner-input" placeholder="${item.textContent}" '
+            'style="font-size:${item.fontSize}px;">';
+          break;
+
         case ItemType.search:
-          content = '<span style="margin-right: 8px; color: ${_colorToCss(item.iconColor, '#888')}">🔍</span> ${item.textContent}';
+          final iconColor = _colorToCss(item.iconColor, '#888888');
+          final textColor = _colorToCss(item.textColor, '#888888');
+          content = '<input type="search" class="boxy-inner-input" placeholder="${item.textContent}" '
+            'style="font-size:14px;color:$textColor;">'
+            '<button onclick="this.previousElementSibling.focus()" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;">'
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="$iconColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
+                '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'
+              '</svg>'
+            '</button>';
           break;
+
         case ItemType.dropdown:
           tag = "select";
           content = item.dropdownItems.map((opt) => '<option>$opt</option>').join("");
           break;
+
         case ItemType.card:
           content = item.textContent;
           break;
+
         case ItemType.navBar:
-          content = item.navItems.map((s) => '<a href="#" style="text-decoration: none; color: ${_colorToCss(item.textColor, '#000000')}; margin: 0 ${item.navSpacing/2}px; font-weight: 600; font-size: 14px;">$s</a>').join("");
+          content = item.navItems.map((s) =>
+            '<a href="#" style="text-decoration:none;color:${_colorToCss(item.textColor, '#000000')};'
+            'margin:0 ${item.navSpacing / 2}px;font-weight:600;font-size:14px;">$s</a>'
+          ).join("");
           break;
+
         case ItemType.checkbox:
-          content = '<div style="width: 18px; height: 18px; border: 2px solid ${_colorToCss(item.borderColor, '#DDDDDD')}; border-radius: 4px; background-color: ${_colorToCss(item.backgroundColor, 'transparent')};"></div> <span>${item.textContent}</span>';
+          content = '<label class="boxy-checkbox-label">'
+            '<input type="checkbox" style="accent-color:${_colorToCss(item.textColor, '#8B3DFF')};">'
+            '<span style="font-size:${item.fontSize}px;">${item.textContent}</span>'
+            '</label>';
           break;
-        case ItemType.profileImage:
-          content = '<div style="font-size: 40px; color: ${_colorToCss(item.iconColor, '#888888')}">👤</div>';
-          break;
-        case ItemType.chart:
-          content = '<strong>Analytics</strong><div style="flex:1; display:flex; align-items:flex-end; gap:10px; margin-top:16px; width:100%"><div style="width:20%; height:40%; background:currentColor; opacity:0.3"></div><div style="width:20%; height:80%; background:currentColor; opacity:0.6"></div><div style="width:20%; height:60%; background:currentColor; opacity:0.4"></div><div style="width:20%; height:100%; background:currentColor"></div><div style="width:20%; height:50%; background:currentColor; opacity:0.3"></div></div>';
-          break;
+
         case ItemType.toggle:
-          content = '<div style="width:${item.size.height - 8}px; height:${item.size.height - 8}px; background-color:${_colorToCss(item.borderColor, '#FFFFFF')}; border-radius:50%"></div>';
+          final trackColor = _colorToCss(item.backgroundColor, '#2196F3');
+          final uid = 'tgl_${item.id.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}';
+          content = '<div class="boxy-toggle-track on" id="$uid" '
+            'style="background:$trackColor;" '
+            'onclick="this.classList.toggle(\'on\'); this.classList.toggle(\'off\');">'
+            '<div class="boxy-toggle-thumb"></div>'
+            '</div>';
           break;
+
+        case ItemType.profileImage:
+          content = '<div style="font-size:40px;color:${_colorToCss(item.iconColor, '#888888')}">👤</div>';
+          break;
+
+        case ItemType.chart:
+          content = '<strong>Analytics</strong>'
+            '<div style="flex:1;display:flex;align-items:flex-end;gap:10px;margin-top:16px;width:100%">'
+              '<div style="width:20%;height:40%;background:currentColor;opacity:0.3"></div>'
+              '<div style="width:20%;height:80%;background:currentColor;opacity:0.6"></div>'
+              '<div style="width:20%;height:60%;background:currentColor;opacity:0.4"></div>'
+              '<div style="width:20%;height:100%;background:currentColor"></div>'
+              '<div style="width:20%;height:50%;background:currentColor;opacity:0.3"></div>'
+            '</div>';
+          break;
+
         case ItemType.table:
-          content = '<div style="display:flex; justify-content:space-around; width:100%; padding:12px; border-bottom:1px solid currentColor; opacity:0.8"><b>ID</b><b>Name</b><b>Status</b></div><div style="display:flex; justify-content:space-around; width:100%; padding:12px; border-bottom:1px solid currentColor; opacity:0.5"><span>#1001</span><span>User 1</span><span style="color:green">Active</span></div>';
+          tag = "div";
+          content = '<table class="boxy-table">'
+            '<thead><tr>'
+              '<th>ID</th><th>Name</th><th>Status</th>'
+            '</tr></thead>'
+            '<tbody>'
+              '<tr><td>#1001</td><td>User 1</td><td style="color:#22c55e;font-weight:600;">Active</td></tr>'
+              '<tr><td>#1002</td><td>User 2</td><td style="color:#22c55e;font-weight:600;">Active</td></tr>'
+              '<tr><td>#1003</td><td>User 3</td><td style="color:#f59e0b;font-weight:600;">Pending</td></tr>'
+            '</tbody>'
+            '</table>';
           break;
+
         case ItemType.pricingCard:
-          content = '<b>Pro Plan</b><br><h2 style="margin:10px 0">\\\$29/mo</h2><ul style="list-style:none; padding:0; text-align:left; width:100%"><li>✓ Premium Feature 1</li><li>✓ Premium Feature 2</li><li>✓ Premium Feature 3</li></ul><div style="margin-top:auto; width:100%; padding:12px; background:currentColor; color:${_colorToCss(item.backgroundColor, '#FFFFFF')}; text-align:center; border-radius:8px; box-sizing:border-box"><b>Subscribe</b></div>';
+          final btnBg = _colorToCss(item.textColor, '#000000');
+          final btnText = _colorToCss(item.backgroundColor, '#FFFFFF');
+          content = '<b style="font-size:15px;">Pro Plan</b>'
+            '<div style="font-size:28px;font-weight:800;margin:8px 0;">\$29<span style="font-size:14px;font-weight:400;">/mo</span></div>'
+            '<ul class="boxy-pricing-features">'
+              '<li>Unlimited Projects</li>'
+              '<li>Priority Support</li>'
+              '<li>Advanced Analytics</li>'
+            '</ul>'
+            '<button class="boxy-pricing-btn" style="background:$btnBg;color:$btnText;">Subscribe</button>';
           break;
+
         case ItemType.sidebar:
-          content = '<b style="padding:20px; opacity:0.5">MENU</b><div style="padding:12px 20px">Dashboard</div><div style="padding:12px 20px">Users</div><div style="padding:12px 20px">Settings</div><div style="padding:12px 20px">Reports</div>';
+          content = '<b style="padding:20px;opacity:0.5;font-size:11px;letter-spacing:1px;">MENU</b>'
+            '<div style="padding:12px 20px;">Dashboard</div>'
+            '<div style="padding:12px 20px;">Users</div>'
+            '<div style="padding:12px 20px;">Settings</div>'
+            '<div style="padding:12px 20px;">Reports</div>';
           break;
+
         case ItemType.article:
-          content = '<h2 style="margin-top:0">Article Headline</h2><p style="opacity:0.8; line-height:1.5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>';
+          content = '<h2 style="margin-top:0;">Article Headline</h2>'
+            '<p style="opacity:0.8;line-height:1.6;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+            'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>';
           break;
+
         case ItemType.gallery:
-          content = '<div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div><div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div><div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div><div style="background:${_colorToCss(item.borderColor, '#EEEEEE')}; opacity:0.3; border-radius:8px"></div>';
+          final gBg = _colorToCss(item.borderColor, '#DDDDDD');
+          content = '<div style="background:$gBg;opacity:0.3;border-radius:8px;"></div>'
+            '<div style="background:$gBg;opacity:0.3;border-radius:8px;"></div>'
+            '<div style="background:$gBg;opacity:0.3;border-radius:8px;"></div>'
+            '<div style="background:$gBg;opacity:0.3;border-radius:8px;"></div>';
           break;
+
         case ItemType.list:
           final textHex = _colorToCss(item.textColor, '#000000');
-          final iconBg = 'rgba(0,0,0,0.06)';
-          final dividerColor = 'rgba(0,0,0,0.07)';
           final rows = item.listItems.asMap().entries.map((e) {
             final hour = 9 + e.key;
             final timeLabel = '$hour:00 AM';
             final isLast = e.key == item.listItems.length - 1;
-            final divider = isLast ? '' : '<div style="height:1px; background:$dividerColor; margin-left:48px;"></div>';
-            return '<div style="display:flex; align-items:center; padding:7px 10px; gap:10px;">'
-              '<div style="width:28px; height:28px; flex-shrink:0; background:$iconBg; border-radius:6px; display:flex; align-items:center; justify-content:center;">'
+            final divider = isLast ? '' : '<div style="height:1px;background:rgba(0,0,0,0.07);margin-left:48px;"></div>';
+            return '<div style="display:flex;align-items:center;padding:7px 10px;gap:10px;">'
+              '<div style="width:28px;height:28px;flex-shrink:0;background:rgba(0,0,0,0.06);border-radius:6px;display:flex;align-items:center;justify-content:center;">'
                 '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="$textHex" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>'
               '</div>'
-              '<span style="flex:1; font-weight:700; font-size:13px; color:$textHex; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${e.value}</span>'
-              '<span style="font-size:10px; color:$textHex; opacity:0.45; flex-shrink:0;">$timeLabel</span>'
+              '<span style="flex:1;font-weight:700;font-size:13px;color:$textHex;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.value}</span>'
+              '<span style="font-size:10px;color:$textHex;opacity:0.45;flex-shrink:0;">$timeLabel</span>'
             '</div>$divider';
           }).join('');
           content = rows;
           break;
+
         default:
           content = item.textContent.isNotEmpty ? item.textContent : item.type.name.toUpperCase();
       }
 
-      // Emit AI context as HTML comment if present
       if (item.aiContext.isNotEmpty) {
         html.writeln('  <!-- AI Context: ${item.aiContext} -->');
       }
+
       html.writeln('  <$tag id="$id" class="boxy-item">$content</$tag>');
     }
 

@@ -1,3 +1,4 @@
+import 'dart:math' show cos, sin;
 import 'package:flutter/material.dart';
 import '../models/layout_item.dart';
 
@@ -436,14 +437,65 @@ body {
           break;
 
         case ItemType.chart:
-          content = '<strong>Analytics</strong>'
-            '<div style="flex:1;display:flex;align-items:flex-end;gap:10px;margin-top:16px;width:100%">'
-              '<div style="width:20%;height:40%;background:currentColor;opacity:0.3"></div>'
-              '<div style="width:20%;height:80%;background:currentColor;opacity:0.6"></div>'
-              '<div style="width:20%;height:60%;background:currentColor;opacity:0.4"></div>'
-              '<div style="width:20%;height:100%;background:currentColor"></div>'
-              '<div style="width:20%;height:50%;background:currentColor;opacity:0.3"></div>'
-            '</div>';
+          final cHex = _colorToCss(item.textColor, '#4F6EF7');
+          final chartW = item.size.width - 32;
+          final chartH = (item.size.height - 52).clamp(40.0, 9999.0);
+          switch (item.chartType) {
+            case ChartType.bar:
+              final vals = [0.40, 0.80, 0.55, 1.0, 0.65, 0.30, 0.90];
+              final bw = (chartW / vals.length * 0.55).toStringAsFixed(1);
+              final gap = chartW / vals.length;
+              final bars = vals.asMap().entries.map((e) {
+                final bh = (chartH * e.value).toStringAsFixed(1);
+                final bx = (gap * e.key + (gap - double.parse(bw)) / 2).toStringAsFixed(1);
+                final by = (chartH - double.parse(bh)).toStringAsFixed(1);
+                final opacity = (0.3 + e.value * 0.7).toStringAsFixed(2);
+                return '<rect x="$bx" y="$by" width="$bw" height="$bh" rx="3" fill="$cHex" opacity="$opacity"/>';
+              }).join('');
+              content = '<strong style="font-size:12px;">Analytics</strong>'
+                '<svg width="${chartW.toStringAsFixed(0)}" height="${chartH.toStringAsFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:block;">$bars</svg>';
+              break;
+            case ChartType.line:
+              final vals2 = [0.40, 0.80, 0.55, 1.0, 0.65, 0.30, 0.90];
+              final pts = vals2.asMap().entries.map((e) {
+                final px = (chartW / (vals2.length - 1) * e.key);
+                final py = chartH - chartH * e.value;
+                return Offset(px, py);
+              }).toList();
+              String polyline = pts.map((p) => '${p.dx.toStringAsFixed(1)},${p.dy.toStringAsFixed(1)}').join(' ');
+              String areaPoints = '0,${chartH.toStringAsFixed(1)} $polyline ${chartW.toStringAsFixed(1)},${chartH.toStringAsFixed(1)}';
+              content = '<strong style="font-size:12px;">Analytics</strong>'
+                '<svg width="${chartW.toStringAsFixed(0)}" height="${chartH.toStringAsFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:block;">'
+                  '<polygon points="$areaPoints" fill="$cHex" opacity="0.12"/>'
+                  '<polyline points="$polyline" fill="none" stroke="$cHex" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+                  '${pts.map((p) => '<circle cx="${p.dx.toStringAsFixed(1)}" cy="${p.dy.toStringAsFixed(1)}" r="3" fill="${_colorToCss(item.backgroundColor, '#fff')}" stroke="$cHex" stroke-width="1.5"/>').join()}'
+                '</svg>';
+              break;
+            case ChartType.pie:
+              final segs = [0.30, 0.22, 0.18, 0.15, 0.15];
+              final cx2 = chartW / 2;
+              final cy2 = chartH / 2;
+              final r2 = (chartW < chartH ? chartW : chartH) / 2 * 0.88;
+              final r2i = r2 * 0.42;
+              String arcs = '';
+              double angle = -1.5708;
+              final opacities = [1.0, 0.7, 0.5, 0.35, 0.2];
+              for (int si = 0; si < segs.length; si++) {
+                final sweep = segs[si] * 6.2832;
+                final x1 = cx2 + r2 * cos(angle);
+                final y1 = cy2 + r2 * sin(angle);
+                final x2 = cx2 + r2 * cos(angle + sweep);
+                final y2 = cy2 + r2 * sin(angle + sweep);
+                final largeArc = sweep > 3.1416 ? 1 : 0;
+                arcs += '<path d="M $cx2 $cy2 L ${x1.toStringAsFixed(2)} ${y1.toStringAsFixed(2)} A $r2 $r2 0 $largeArc 1 ${x2.toStringAsFixed(2)} ${y2.toStringAsFixed(2)} Z" '
+                  'fill="$cHex" opacity="${opacities[si]}" stroke="${_colorToCss(item.backgroundColor, '#fff')}" stroke-width="1.5"/>';
+                angle += sweep;
+              }
+              arcs += '<circle cx="$cx2" cy="$cy2" r="$r2i" fill="${_colorToCss(item.backgroundColor, '#fff')}"/>';
+              content = '<strong style="font-size:12px;">Analytics</strong>'
+                '<svg width="${chartW.toStringAsFixed(0)}" height="${chartH.toStringAsFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:block;">$arcs</svg>';
+              break;
+          }
           break;
 
         case ItemType.table:

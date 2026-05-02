@@ -227,6 +227,11 @@ class PropertiesPanel extends StatelessWidget {
                 ..._buildListItemsList(context, provider, selectedItem),
               ],
 
+              if (selectedItem.type == ItemType.chart) ...[
+                _buildSectionTitle("CHART TYPE"),
+                _buildChartTypePicker(context, provider, selectedItem),
+              ],
+
               const SizedBox(height: 30),
               _buildDuplicateButton(provider, selectedItem),
               const SizedBox(height: 10),
@@ -706,6 +711,67 @@ class PropertiesPanel extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildChartTypePicker(
+    BuildContext context,
+    LayoutProvider provider,
+    LayoutItem item,
+  ) {
+    final types = [
+      (ChartType.bar, Icons.bar_chart, 'Bar'),
+      (ChartType.line, Icons.show_chart, 'Line'),
+      (ChartType.pie, Icons.pie_chart, 'Pie'),
+    ];
+    return Row(
+      children: types.map((t) {
+        final isSelected = item.chartType == t.$1;
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: GestureDetector(
+              onTap: () => provider.updateChartType(item.id, t.$1),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFF8B3DFF).withValues(alpha: 0.15)
+                      : Colors.white10,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFF8B3DFF)
+                        : Colors.white12,
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(t.$2,
+                        size: 20,
+                        color: isSelected
+                            ? const Color(0xFF8B3DFF)
+                            : Colors.white54),
+                    const SizedBox(height: 4),
+                    Text(t.$3,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isSelected
+                              ? const Color(0xFF8B3DFF)
+                              : Colors.white54,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        )),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 

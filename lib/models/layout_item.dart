@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+enum ChartType { bar, line, pie }
+
 enum ItemType {
   box,
   image,
@@ -53,6 +55,9 @@ class LayoutItem extends ChangeNotifier {
   // List Items (rows for the list widget)
   List<String> _listItems;
 
+  // Chart type
+  ChartType _chartType;
+
   // V23: Theme Colors
   Color? _backgroundColor;
   Color? _textColor;
@@ -75,6 +80,7 @@ class LayoutItem extends ChangeNotifier {
   bool get isFullWidth => _isFullWidth;
   List<String> get dropdownItems => _dropdownItems;
   List<String> get listItems => _listItems;
+  ChartType get chartType => _chartType;
   Color? get backgroundColor => _backgroundColor;
   Color? get textColor => _textColor;
   Color? get iconColor => _iconColor;
@@ -156,6 +162,12 @@ class LayoutItem extends ChangeNotifier {
     notifyListeners();
   }
 
+  set chartType(ChartType value) {
+    if (_chartType == value) return;
+    _chartType = value;
+    notifyListeners();
+  }
+
   set backgroundColor(Color? value) {
     if (_backgroundColor == value) return;
     _backgroundColor = value;
@@ -203,6 +215,7 @@ class LayoutItem extends ChangeNotifier {
       isFullWidth: _isFullWidth,
       dropdownItems: List<String>.from(_dropdownItems),
       listItems: List<String>.from(_listItems),
+      chartType: _chartType,
       backgroundColor: _backgroundColor,
       textColor: _textColor,
       iconColor: _iconColor,
@@ -227,6 +240,7 @@ class LayoutItem extends ChangeNotifier {
     bool isFullWidth = false,
     List<String> dropdownItems = const ["Option 1", "Option 2"],
     List<String> listItems = const ["Inbox", "Sent", "Drafts", "Archived"],
+    ChartType chartType = ChartType.bar,
     Color? backgroundColor,
     Color? textColor,
     Color? iconColor,
@@ -245,6 +259,7 @@ class LayoutItem extends ChangeNotifier {
         _isFullWidth = isFullWidth,
         _dropdownItems = dropdownItems,
         _listItems = listItems,
+        _chartType = chartType,
         _backgroundColor = backgroundColor,
         _textColor = textColor,
         _iconColor = iconColor,

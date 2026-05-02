@@ -224,6 +224,13 @@ class LayoutProvider extends ChangeNotifier {
     }
   }
 
+  void updateChartType(String id, ChartType type) {
+    final index = _items.indexWhere((i) => i.id == id);
+    if (index != -1) {
+      _items[index].chartType = type;
+    }
+  }
+
   void updateBorderRadius(String id, double radius) {
     final index = _items.indexWhere((i) => i.id == id);
     if (index != -1) {

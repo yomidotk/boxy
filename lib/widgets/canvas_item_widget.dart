@@ -1,3 +1,4 @@
+import 'dart:math' show cos, sin;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/layout_item.dart';
@@ -343,31 +344,30 @@ class CanvasItemWidget extends StatelessWidget {
         );
       
       case ItemType.chart:
+        final chartColor = item.textColor ?? Colors.blue;
+        final chartBg = item.backgroundColor ?? Colors.white;
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: item.backgroundColor ?? Colors.white,
+            color: chartBg,
             borderRadius: BorderRadius.circular(item.borderRadius),
             border: item.borderColor != null ? Border.all(color: item.borderColor!) : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Analytics", style: TextStyle(fontWeight: FontWeight.bold, color: item.textColor ?? Colors.black)),
-              const SizedBox(height: 16),
+              Text("Analytics", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: chartColor)),
+              const SizedBox(height: 8),
               Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(width: 20, height: 40, color: item.textColor?.withValues(alpha: 0.3) ?? Colors.blue[200]),
-                    Container(width: 20, height: 80, color: item.textColor?.withValues(alpha: 0.6) ?? Colors.blue[400]),
-                    Container(width: 20, height: 60, color: item.textColor?.withValues(alpha: 0.4) ?? Colors.blue[300]),
-                    Container(width: 20, height: 100, color: item.textColor ?? Colors.blue[600]),
-                    Container(width: 20, height: 50, color: item.textColor?.withValues(alpha: 0.3) ?? Colors.blue[200]),
-                  ],
+                child: CustomPaint(
+                  painter: _ChartPainter(
+                    type: item.chartType,
+                    color: chartColor,
+                    bgColor: chartBg,
+                  ),
+                  size: Size.infinite,
                 ),
-              )
+              ),
             ],
           ),
         );
@@ -563,4 +563,121 @@ class CanvasItemWidget extends StatelessWidget {
         );
     }
   }
+}
+
+class _ChartPainter extends CustomPainter {
+  final ChartType type;
+  final Color color;
+  final Color bgColor;
+
+  static const _values = [0.40, 0.80, 0.55, 1.0, 0.65, 0.30, 0.90];
+
+  _ChartPainter({required this.type, required this.color, required this.bgColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    switch (type) {
+      case ChartType.bar:
+        _drawBar(canvas, size);
+        break;
+      case ChartType.line:
+        _drawLine(canvas, size);
+        break;
+      case ChartType.pie:
+        _drawPie(canvas, size);
+        break;
+    }
+  }
+
+  void _drawBar(Canvas canvas, Size size) {
+    final count = _values.length;
+    final barW = (size.width / count) * 0.55;
+    final gap = size.width / count;
+    for (int i = 0; i < count; i++) {
+      final h = size.height * _values[i];
+      final x = gap * i + (gap - barW) / 2;
+      final y = size.height - h;
+      final paint = Paint()
+        ..color = color.withValues(alpha: 0.3 + _values[i] * 0.7)
+        ..style = PaintingStyle.fill;
+      final rRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(x, y, barW, h),
+        const Radius.circular(3),
+      );
+      canvas.drawRRect(rRect, paint);
+    }
+  }
+
+  void _drawLine(Canvas canvas, Size size) {
+    final count = _values.length;
+    final pts = List.generate(count, (i) {
+      final x = (size.width / (count - 1)) * i;
+      final y = size.height - size.height * _values[i];
+      return Offset(x, y);
+    });
+
+    // Fill area under curve
+    final fillPath = Path()..moveTo(0, size.height);
+    fillPath.lineTo(pts[0].dx, pts[0].dy);
+    for (int i = 0; i < pts.length - 1; i++) {
+      final cp1 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i].dy);
+      final cp2 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i + 1].dy);
+      fillPath.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, pts[i + 1].dx, pts[i + 1].dy);
+    }
+    fillPath.lineTo(size.width, size.height);
+    fillPath.close();
+    canvas.drawPath(fillPath, Paint()..color = color.withValues(alpha: 0.15)..style = PaintingStyle.fill);
+
+    // Stroke
+    final linePath = Path()..moveTo(pts[0].dx, pts[0].dy);
+    for (int i = 0; i < pts.length - 1; i++) {
+      final cp1 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i].dy);
+      final cp2 = Offset((pts[i].dx + pts[i + 1].dx) / 2, pts[i + 1].dy);
+      linePath.cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, pts[i + 1].dx, pts[i + 1].dy);
+    }
+    canvas.drawPath(linePath, Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round);
+
+    // Dots
+    for (final pt in pts) {
+      canvas.drawCircle(pt, 3, Paint()..color = bgColor..style = PaintingStyle.fill);
+      canvas.drawCircle(pt, 3, Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 1.5);
+    }
+  }
+
+  void _drawPie(Canvas canvas, Size size) {
+    final segments = [0.30, 0.22, 0.18, 0.15, 0.15];
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final r = (size.width < size.height ? size.width : size.height) / 2 * 0.88;
+    double startAngle = -1.5708; // -pi/2
+    final alphas = [1.0, 0.7, 0.5, 0.35, 0.2];
+    for (int i = 0; i < segments.length; i++) {
+      final sweep = segments[i] * 6.2832;
+      final paint = Paint()
+        ..color = color.withValues(alpha: alphas[i])
+        ..style = PaintingStyle.fill;
+      canvas.drawArc(
+        Rect.fromCircle(center: Offset(cx, cy), radius: r),
+        startAngle, sweep, true, paint,
+      );
+      // white divider
+      canvas.drawArc(
+        Rect.fromCircle(center: Offset(cx, cy), radius: r),
+        startAngle, sweep, true,
+        Paint()..color = bgColor..style = PaintingStyle.stroke..strokeWidth = 1.5,
+      );
+      startAngle += sweep;
+    }
+    // donut hole
+    canvas.drawCircle(Offset(cx, cy), r * 0.42,
+      Paint()..color = bgColor..style = PaintingStyle.fill);
+  }
+
+  @override
+  bool shouldRepaint(_ChartPainter old) =>
+      old.type != type || old.color != color || old.bgColor != bgColor;
 }

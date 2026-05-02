@@ -17,6 +17,11 @@ class BlueprintPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (!size.width.isFinite || !size.height.isFinite) return;
 
+    // V22: Align with Expanded 5000px Canvas
+    const double canvasOffset = 2100.0;
+    canvas.save();
+    canvas.translate(canvasOffset, 0);
+
     if (showDimensions) {
       // Draw dimensions for ALL items
       for (var item in allItems) {
@@ -50,6 +55,8 @@ class BlueprintPainter extends CustomPainter {
         selectedItem!.position.dy.isFinite) {
       _drawSmartGaps(canvas, selectedItem!);
     }
+
+    canvas.restore(); // V22: Restore from offset translation
   }
 
   void _drawTechnicalDimensions(
@@ -146,10 +153,9 @@ class BlueprintPainter extends CustomPainter {
     }
 
     // Helper: Check if a given label/arrow area intersects with ANY other item
-    // Note: checkCollision is Axis-Aligned calculation. It might be slightly inaccurate for rotated environment
-    // but suffices for basic placement.
     bool checkCollision(Rect area) {
-      if (area.top < 0 || area.left < 0) return true; // Screen Edge Collision
+      // V22: Expanded Edge Check (-2100 to 2900)
+      if (area.top < 0 || area.left < -2100) return true; 
       // Check against all other items
       for (var other in allItems) {
         if (other.id == item.id) continue;
@@ -221,8 +227,9 @@ class BlueprintPainter extends CustomPainter {
 
     Rect rightArea = Rect.fromLTWH(drawX + drawW, drawY, 40, drawH);
 
-    // Check right edge collision explicitly logic since checkCollision does < 0 for left/top
-    bool forceLeft = (drawX + drawW + 50) > size.width;
+    // Check right edge collision explicitly
+    // V22: Right edge is at size.width - 2100 = 2900
+    bool forceLeft = (drawX + drawW + 50) > 2900;
     bool collisionRight = forceLeft || checkCollision(rightArea);
 
     double xPos = collisionRight

@@ -23,7 +23,8 @@ class CanvasItemWidget extends StatelessWidget {
         final Size canvasSize = MediaQuery.of(context).size;
 
         const double padding = 100.0;
-        final double renderLeft = item.isFullWidth ? -padding : item.position.dx - padding;
+        const double canvasOffset = 2100.0; // V22: (5000 - 800) / 2
+        final double renderLeft = item.isFullWidth ? -padding + canvasOffset : item.position.dx - padding + canvasOffset;
         final double renderWidth = item.isFullWidth ? 800.0 : item.size.width;
 
         return Positioned(

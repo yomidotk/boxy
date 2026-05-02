@@ -17,10 +17,11 @@ class ItemSelectionOverlay extends StatelessWidget {
           listenable: selectedItem,
           builder: (context, child) {
             const double padding = 100.0;
+            const double canvasOffset = 2100.0; // V22: (5000 - 800) / 2
             final item = selectedItem;
             
             final double renderWidth = item.isFullWidth ? 800.0 : item.size.width;
-            final double renderLeft = item.isFullWidth ? -padding : item.position.dx - padding;
+            final double renderLeft = item.isFullWidth ? -padding + canvasOffset : item.position.dx - padding + canvasOffset;
             final double renderTop = item.position.dy - padding;
 
             return Positioned(

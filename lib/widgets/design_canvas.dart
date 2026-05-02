@@ -142,7 +142,12 @@ class _DesignCanvasState extends State<DesignCanvas> {
                       // Actual Canvas Page
                       DragTarget<ItemType>(
                         onAcceptWithDetails: (details) {
-                          // V21: Corrected Coordinate Space (Relative to the actual Page)
+                          // V22: Expanded Hit-Test Area (5000px)
+                          // The "Page" starts at x = 2100 (half of 5000 - 800)
+                          const double canvasWidth = 5000.0;
+                          const double pageWidth = 800.0;
+                          const double offset = (canvasWidth - pageWidth) / 2;
+
                           final RenderBox? renderBox =
                               _pageKey.currentContext?.findRenderObject()
                                   as RenderBox?;
@@ -152,10 +157,10 @@ class _DesignCanvasState extends State<DesignCanvas> {
                               details.offset,
                             );
 
-                            // V21: Center the item on drop point
+                            // Center the item on drop point and subtract offset
                             final defaultSize = LayoutItem.getDefaultSize(details.data);
                             final centeredPos = Offset(
-                              localPos.dx - (defaultSize.width / 2),
+                              localPos.dx - (defaultSize.width / 2) - offset,
                               localPos.dy - (defaultSize.height / 2),
                             );
 
@@ -188,15 +193,16 @@ class _DesignCanvasState extends State<DesignCanvas> {
                               ),
 
                               // 2. The Items and Selection Layer (Overlaying the Page but not restricted by it)
-                              // V21: Removed SizedBox(800) hit-test boundary to allow infinite canvas interaction
+                              // V22: Expanded to 5000px for full background interaction
                               Consumer<LayoutProvider>(
                                 builder: (context, provider, child) {
                                   return Stack(
-                                    key: _pageKey, // V21: Fix drop position coordinate system
+                                    key: _pageKey, 
                                     clipBehavior: Clip.none,
                                     children: [
-                                      // Invisible placeholder to ensure this Stack has the 800px coordinate origin
-                                      const SizedBox(width: 800, height: 2000),
+                                      // Expanded hit-test area (5000px wide)
+                                      // Centered such that 0 is still the page edge
+                                      const SizedBox(width: 5000, height: 2000),
 
                                       // Items
                                       ...provider.items.map(
@@ -222,11 +228,11 @@ class _DesignCanvasState extends State<DesignCanvas> {
                                                   painter: BlueprintPainter(
                                                     selectedItem: selectedItem,
                                                     allItems: provider
-                                                        .items, // Only for alignment logic if implemented
+                                                        .items, 
                                                     showDimensions: provider
                                                         .showDimensions,
                                                   ),
-                                                  size: const Size(800, 2000),
+                                                  size: const Size(5000, 2000),
                                                 ),
                                               );
                                             },
@@ -235,7 +241,7 @@ class _DesignCanvasState extends State<DesignCanvas> {
                                       ),
 
                                       // V21: Top-Level Selection Handles (Always Interactive & On Top)
-                                      ItemSelectionOverlay(),
+                                      const ItemSelectionOverlay(),
                                     ],
                                   );
                                 },

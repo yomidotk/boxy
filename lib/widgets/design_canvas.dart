@@ -26,6 +26,27 @@ class _DesignCanvasState extends State<DesignCanvas> {
     _stackKey = widget.exportKey ?? GlobalKey();
     _pageKey = GlobalKey();
     _transformationController = TransformationController();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _centerView());
+  }
+
+  void _centerView() {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final viewportSize = renderBox.size;
+
+    const double padding = 100.0;
+    const double canvasWidth = 5000.0;
+    const double pageWidth = 800.0;
+    const double headerHeight = 40.0;
+
+    final double pageCenterX = padding + canvasWidth / 2;
+    final double pageCenterY = padding + headerHeight + 1000.0;
+
+    final double tx = viewportSize.width / 2 - pageCenterX;
+    final double ty = viewportSize.height / 2 - pageCenterY;
+
+    _transformationController.value = Matrix4.translationValues(tx, ty, 0);
   }
 
   @override

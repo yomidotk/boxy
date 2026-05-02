@@ -172,7 +172,10 @@ class CanvasItemWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             color: item.backgroundColor ?? Colors.white,
-            border: Border(bottom: BorderSide(color: item.borderColor ?? Colors.grey[300]!)),
+            borderRadius: BorderRadius.circular(item.borderRadius),
+            border: item.borderRadius > 0
+                ? Border.all(color: item.borderColor ?? Colors.grey[300]!)
+                : Border(bottom: BorderSide(color: item.borderColor ?? Colors.grey[300]!)),
           ),
           child: Row(
             mainAxisAlignment: item.navAlignment,

@@ -167,7 +167,7 @@ class PropertiesPanel extends StatelessWidget {
                 ),
               // Corner Radius — hidden for shape-fixed items
               if (![ItemType.text, ItemType.profileImage, ItemType.toggle,
-                    ItemType.navBar, ItemType.table]
+                    ItemType.table]
                   .contains(selectedItem.type)) ...[
                 _buildSlider(
                   label: "Corner Radius",

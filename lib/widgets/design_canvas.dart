@@ -142,37 +142,40 @@ class _DesignCanvasState extends State<DesignCanvas> {
                       // Actual Canvas Page
                       DragTarget<ItemType>(
                         onAcceptWithDetails: (details) {
-                          // V22: Expanded Hit-Test Area (5000px)
-                          // The "Page" starts at x = 2100 (half of 5000 - 800)
+                          // V22: Precise Drop Logic
                           const double canvasWidth = 5000.0;
                           const double pageWidth = 800.0;
-                          const double offset = (canvasWidth - pageWidth) / 2;
+                          const double canvasOffset = (canvasWidth - pageWidth) / 2;
 
                           final RenderBox? renderBox =
                               _pageKey.currentContext?.findRenderObject()
                                   as RenderBox?;
 
                           if (renderBox != null) {
-                            final Offset localPos = renderBox.globalToLocal(
-                              details.offset,
+                            // Use globalToLocal to account for InteractiveViewer transformation
+                            // details.offset is the top-left of the feedback widget.
+                            // We add 40,40 to estimate the actual pointer position (center of the tool icon).
+                            final Offset pointerPos = renderBox.globalToLocal(
+                              details.offset + const Offset(40, 40),
                             );
 
-                            // Center the item on drop point and subtract offset
-                            final defaultSize = LayoutItem.getDefaultSize(details.data);
-                            final centeredPos = Offset(
-                              localPos.dx - (defaultSize.width / 2) - offset,
-                              localPos.dy - (defaultSize.height / 2),
+                            // Calculate position relative to the 800px page
+                            final dropPos = Offset(
+                              pointerPos.dx - canvasOffset,
+                              pointerPos.dy,
                             );
 
                             Provider.of<LayoutProvider>(context, listen: false)
-                                .addItem(details.data, centeredPos);
+                                .addItem(details.data, dropPos);
                           }
                         },
                         builder: (context, candidateData, rejectedData) {
-                          return Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.topCenter,
-                            children: [
+                          return SizedBox(
+                            width: 5000, // Explicitly wide to catch drops in background
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              alignment: Alignment.topCenter,
+                              children: [
                               // 1. The Static Page Visuals (White Box + Dots)
                               Container(
                                 width: 800,
@@ -247,9 +250,10 @@ class _DesignCanvasState extends State<DesignCanvas> {
                                 },
                               ),
                             ],
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
+                    ),
                       const SizedBox(height: 50),
                     ],
                   ),

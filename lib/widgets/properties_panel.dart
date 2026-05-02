@@ -37,6 +37,49 @@ class PropertiesPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(selectedItem.id, selectedItem.type),
+              const SizedBox(height: 12),
+
+              // AI Context — shown at top so it's the first thing you fill in
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B3DFF).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF8B3DFF).withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.auto_awesome, size: 14, color: Color(0xFF8B3DFF)),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "AI CONTEXT",
+                          style: TextStyle(
+                            color: Color(0xFF8B3DFF),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      "Describe what this element should do — its behavior, styling intent, interactions, etc. This is written as an HTML comment to guide AI coding tools when they implement your design.",
+                      style: TextStyle(color: Colors.white38, fontSize: 10, height: 1.5),
+                    ),
+                    const SizedBox(height: 10),
+                    _AiContextEditor(
+                      key: ValueKey('ai_\${selectedItem.id}'),
+                      initialValue: selectedItem.aiContext,
+                      onChanged: (v) => provider.updateAiContext(selectedItem.id, v),
+                    ),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: 20),
 
               // Layout Section
@@ -96,8 +139,9 @@ class PropertiesPanel extends StatelessWidget {
                 ],
               ),
 
-              // Full Width Toggle
-              if (![ItemType.text, ItemType.logo, ItemType.dropdown, ItemType.input]
+              // Full Width Toggle — hidden for fixed-shape items
+              if (![ItemType.text, ItemType.logo, ItemType.dropdown, ItemType.input,
+                    ItemType.toggle, ItemType.profileImage, ItemType.checkbox, ItemType.button]
                   .contains(selectedItem.type)) ...[
                 const SizedBox(height: 10),
                 _buildToggle(
@@ -111,14 +155,20 @@ class PropertiesPanel extends StatelessWidget {
 
               // Style Section
               _buildSectionTitle("STYLE"),
-              _buildSlider(
-                label: "Rotation",
-                value: selectedItem.rotation,
-                min: 0,
-                max: 360,
-                onChanged: (v) => provider.updateRotation(selectedItem.id, v),
-              ),
-              if (selectedItem.type != ItemType.text) ...[
+              // Rotation — hidden for layout-anchored elements
+              if (![ItemType.navBar, ItemType.sidebar, ItemType.table]
+                  .contains(selectedItem.type))
+                _buildSlider(
+                  label: "Rotation",
+                  value: selectedItem.rotation,
+                  min: 0,
+                  max: 360,
+                  onChanged: (v) => provider.updateRotation(selectedItem.id, v),
+                ),
+              // Corner Radius — hidden for shape-fixed items
+              if (![ItemType.text, ItemType.profileImage, ItemType.toggle,
+                    ItemType.navBar, ItemType.table]
+                  .contains(selectedItem.type)) ...[
                 _buildSlider(
                   label: "Corner Radius",
                   value: selectedItem.borderRadius,
@@ -134,14 +184,13 @@ class PropertiesPanel extends StatelessWidget {
               // Type Specific Content (Text-Enabled Items)
               if ([ItemType.text, ItemType.button, ItemType.logo, ItemType.search, ItemType.input].contains(selectedItem.type)) ...[
                 _buildSectionTitle("TEXT"),
-                _buildTextField(
-                  label: "Content",
-                  value: selectedItem.type == ItemType.text
-                      ? selectedItem.textContent
-                      : (selectedItem.label ?? ""),
-                  onChanged: (v) => selectedItem.type == ItemType.text
-                      ? provider.updateTextContent(selectedItem.id, v)
-                      : provider.updateLabel(selectedItem.id, v),
+                _TextContentEditor(
+                  // Key on item ID ensures controller resets when a different item is selected,
+                  // but NOT on every keystroke within the same item.
+                  key: ValueKey(selectedItem.id),
+                  // Always use textContent — canvas renders textContent for all these types.
+                  initialValue: selectedItem.textContent,
+                  onChanged: (v) => provider.updateTextContent(selectedItem.id, v),
                 ),
                 const SizedBox(height: 12),
                 
@@ -314,30 +363,8 @@ class PropertiesPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required String value,
-    required Function(String) onChanged,
-  }) {
-    return TextFormField(
-      key: ValueKey("${label}_$value"), // Robust key for text as well
-      initialValue: value,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
-      maxLines: 3,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey, fontSize: 10),
-        filled: true,
-        fillColor: Colors.white10,
-        border: OutlineInputBorder(
-          borderSide: BorderSide.none,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        contentPadding: const EdgeInsets.all(12),
-      ),
-      onChanged: onChanged,
-    );
-  }
+  // Kept for non-text-content uses (if any future use)
+  // The TEXT CONTENT field now uses _TextContentEditor instead.
 
   List<Widget> _buildNavItemsList(
     BuildContext context,
@@ -642,6 +669,141 @@ class PropertiesPanel extends StatelessWidget {
         onPressed: () => provider.applyTextPreset(id, preset),
         child: Text(label, style: const TextStyle(fontSize: 10)),
       ),
+    );
+  }
+}
+
+/// A StatefulWidget for editing text content without losing focus on rebuild.
+/// It uses a persistent TextEditingController keyed only on item ID,
+/// so typing a letter does NOT destroy and recreate the field.
+class _TextContentEditor extends StatefulWidget {
+  final String initialValue;
+  final Function(String) onChanged;
+
+  const _TextContentEditor({
+    super.key,
+    required this.initialValue,
+    required this.onChanged,
+  });
+
+  @override
+  State<_TextContentEditor> createState() => _TextContentEditorState();
+}
+
+class _TextContentEditorState extends State<_TextContentEditor> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void didUpdateWidget(_TextContentEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Only sync the controller if the text changed externally
+    // (e.g. from a preset button), preserving cursor position otherwise.
+    if (widget.initialValue != _controller.text) {
+      _controller.text = widget.initialValue;
+      _controller.selection = TextSelection.collapsed(
+        offset: _controller.text.length,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      style: const TextStyle(color: Colors.white, fontSize: 14),
+      maxLines: 3,
+      decoration: InputDecoration(
+        labelText: "Content",
+        labelStyle: const TextStyle(color: Colors.grey, fontSize: 10),
+        filled: true,
+        fillColor: Colors.white10,
+        border: OutlineInputBorder(
+          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.all(12),
+      ),
+      onChanged: widget.onChanged,
+    );
+  }
+}
+
+/// Persistent text editor for the AI Context field.
+class _AiContextEditor extends StatefulWidget {
+  final String initialValue;
+  final Function(String) onChanged;
+
+  const _AiContextEditor({
+    super.key,
+    required this.initialValue,
+    required this.onChanged,
+  });
+
+  @override
+  State<_AiContextEditor> createState() => _AiContextEditorState();
+}
+
+class _AiContextEditorState extends State<_AiContextEditor> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void didUpdateWidget(_AiContextEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialValue != _controller.text) {
+      _controller.text = widget.initialValue;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      style: const TextStyle(color: Colors.white, fontSize: 13),
+      maxLines: 3,
+      decoration: InputDecoration(
+        hintText: "e.g. Submit the contact form when clicked",
+        hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.05),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white10),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white10),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Color(0xFF8B3DFF)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.all(12),
+      ),
+      onChanged: widget.onChanged,
     );
   }
 }

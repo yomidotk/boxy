@@ -120,6 +120,22 @@ class LayersPanel extends StatelessWidget {
         return Icon(Icons.list, size: 16, color: color);
       case ItemType.search:
         return Icon(Icons.search, size: 16, color: color);
+      case ItemType.profileImage:
+        return Icon(Icons.account_circle, size: 16, color: color);
+      case ItemType.chart:
+        return Icon(Icons.bar_chart, size: 16, color: color);
+      case ItemType.toggle:
+        return Icon(Icons.toggle_on, size: 16, color: color);
+      case ItemType.table:
+        return Icon(Icons.table_chart, size: 16, color: color);
+      case ItemType.pricingCard:
+        return Icon(Icons.local_offer, size: 16, color: color);
+      case ItemType.sidebar:
+        return Icon(Icons.vertical_split, size: 16, color: color);
+      case ItemType.article:
+        return Icon(Icons.article, size: 16, color: color);
+      case ItemType.gallery:
+        return Icon(Icons.grid_view, size: 16, color: color);
     }
   }
 }

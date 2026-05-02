@@ -1,16 +1,77 @@
 import 'package:flutter/material.dart';
 import '../models/layout_item.dart';
+import '../models/theme_palette.dart';
 
 class LayoutProvider extends ChangeNotifier {
   final List<LayoutItem> _items = [];
   LayoutItem? _selectedItem;
   bool _showDimensions = false; // V4: Show all dimensions toggle
   bool _isDragging = false; // V5: Track dragging state for interaction conflict
+  ThemePalette _currentTheme = ThemePalette.boxy(); // V23: Current Theme
 
   List<LayoutItem> get items => _items;
   LayoutItem? get selectedItem => _selectedItem;
   bool get showDimensions => _showDimensions;
   bool get isDragging => _isDragging;
+  ThemePalette get currentTheme => _currentTheme;
+
+  // V23: Apply Theme to all items
+  void applyTheme(ThemePalette theme) {
+    _currentTheme = theme;
+    for (var item in _items) {
+      switch (item.type) {
+        case ItemType.button:
+          item.backgroundColor = theme.primary;
+          item.textColor = theme.getContrastText(theme.primary);
+          break;
+        case ItemType.box:
+        case ItemType.card:
+        case ItemType.list:
+        case ItemType.chart:
+        case ItemType.table:
+        case ItemType.pricingCard:
+        case ItemType.article:
+        case ItemType.sidebar:
+          item.backgroundColor = theme.surface;
+          item.textColor = theme.getContrastText(theme.surface);
+          item.borderColor = theme.primary.withAlpha(50);
+          break;
+        case ItemType.navBar:
+          item.backgroundColor = theme.surface;
+          item.textColor = theme.getContrastText(theme.surface);
+          break;
+        case ItemType.input:
+        case ItemType.dropdown:
+        case ItemType.search:
+          item.backgroundColor = theme.background;
+          item.textColor = theme.getContrastText(theme.background);
+          item.borderColor = theme.primary;
+          item.iconColor = theme.primary;
+          break;
+        case ItemType.text:
+        case ItemType.logo:
+          item.textColor = item.type == ItemType.logo 
+              ? theme.primary 
+              : theme.getContrastText(theme.background);
+          break;
+        case ItemType.checkbox:
+          item.textColor = theme.getContrastText(theme.background);
+          item.borderColor = theme.primary;
+          break;
+        case ItemType.image:
+        case ItemType.profileImage:
+        case ItemType.gallery:
+          item.backgroundColor = theme.surface;
+          item.iconColor = theme.getContrastText(theme.surface).withAlpha(100);
+          break;
+        case ItemType.toggle:
+          item.backgroundColor = theme.primary;
+          item.borderColor = theme.surface;
+          break;
+      }
+    }
+    notifyListeners();
+  }
 
   void toggleDimensions(bool value) {
     _showDimensions = value;
@@ -63,21 +124,26 @@ class LayoutProvider extends ChangeNotifier {
       type: type,
       position: centeredPos,
       size: size,
-      textContent: type == ItemType.logo ? "BRAND" : (type == ItemType.card ? "Card" : "Text Item"),
-      label: type == ItemType.button
-          ? "Click Me"
-          : (type == ItemType.text
-                ? "Label"
-                : (type == ItemType.checkbox
-                      ? "Label"
-                      : (type == ItemType.input
-                            ? "Placeholder"
-                            : (type == ItemType.search ? "Search..." : null)))),
+      textContent: _getDefaultText(type),
     );
 
     _items.add(newItem);
     _selectedItem = newItem;
     notifyListeners();
+  }
+
+  String _getDefaultText(ItemType type) {
+    switch (type) {
+      case ItemType.button: return "Click Me";
+      case ItemType.text: return "Label";
+      case ItemType.logo: return "BRAND";
+      case ItemType.search: return "Search...";
+      case ItemType.input: return "Placeholder";
+      case ItemType.checkbox: return "Label";
+      case ItemType.card: return "Card";
+      case ItemType.article: return "Article Headline";
+      default: return "Text Item";
+    }
   }
 
   void selectItem(String? id) {
@@ -167,6 +233,14 @@ class LayoutProvider extends ChangeNotifier {
     if (index != -1) {
       _items[index].textContent = text;
       _updateSizeToFitText(_items[index]);
+    }
+  }
+
+  // V25: AI Context
+  void updateAiContext(String id, String context) {
+    final index = _items.indexWhere((i) => i.id == id);
+    if (index != -1) {
+      _items[index].aiContext = context;
     }
   }
 
@@ -327,6 +401,14 @@ class LayoutProvider extends ChangeNotifier {
       case ItemType.checkbox: prefix = "chk"; break;
       case ItemType.list: prefix = "lst"; break;
       case ItemType.search: prefix = "srch"; break;
+      case ItemType.profileImage: prefix = "pfp"; break;
+      case ItemType.chart: prefix = "chart"; break;
+      case ItemType.toggle: prefix = "tgl"; break;
+      case ItemType.table: prefix = "tbl"; break;
+      case ItemType.pricingCard: prefix = "prc"; break;
+      case ItemType.sidebar: prefix = "sdb"; break;
+      case ItemType.article: prefix = "art"; break;
+      case ItemType.gallery: prefix = "gal"; break;
     }
     return "${prefix}_$count";
   }

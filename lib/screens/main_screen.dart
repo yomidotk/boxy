@@ -8,6 +8,7 @@ import 'package:boxy/utils/html_generator.dart';
 import 'package:boxy/utils/exporter.dart';
 import '../widgets/layers_panel.dart';
 import '../widgets/properties_panel.dart';
+import '../widgets/theme_panel.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -146,7 +147,7 @@ class _MainScreenState extends State<MainScreen> {
                     ],
                   ),
                   child: DefaultTabController(
-                    length: 2,
+                    length: 3,
                     child: Column(
                       children: [
                         const TabBar(
@@ -160,6 +161,7 @@ class _MainScreenState extends State<MainScreen> {
                           tabs: [
                             Tab(text: "PROPERTIES"),
                             Tab(text: "LAYERS"),
+                            Tab(text: "THEME"),
                           ],
                         ),
                         Expanded(
@@ -170,6 +172,9 @@ class _MainScreenState extends State<MainScreen> {
 
                               // 2. Layers Tab
                               const LayersPanel(),
+
+                              // 3. Theme Tab
+                              const ThemePanel(),
                             ],
                           ),
                         ),

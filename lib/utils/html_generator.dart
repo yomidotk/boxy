@@ -26,7 +26,6 @@ body {
 }
 .scale-container {
   transform-origin: top left;
-  transform: scale(calc(100vw / 800));
   width: 800px;
 }
 .boxy-wrapper {
@@ -445,6 +444,15 @@ body {
 
     html.writeln(css.toString());
     html.writeln('</style>');
+    html.writeln('<script>');
+    html.writeln('function applyScale(){');
+    html.writeln('  var s=window.innerWidth/800;');
+    html.writeln('  document.querySelector(".scale-container").style.transform="scale("+s+")";');
+    html.writeln('  document.body.style.height=(2000*s)+"px";');
+    html.writeln('}');
+    html.writeln('applyScale();');
+    html.writeln('window.addEventListener("resize",applyScale);');
+    html.writeln('</script>');
     html.writeln('</head>');
     html.writeln('<body>');
     html.writeln('<div class="scale-container">');

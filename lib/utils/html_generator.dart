@@ -444,15 +444,6 @@ body {
 
     html.writeln(css.toString());
     html.writeln('</style>');
-    html.writeln('<script>');
-    html.writeln('function applyScale(){');
-    html.writeln('  var s=window.innerWidth/800;');
-    html.writeln('  document.querySelector(".scale-container").style.transform="scale("+s+")";');
-    html.writeln('  document.body.style.height=(2000*s)+"px";');
-    html.writeln('}');
-    html.writeln('applyScale();');
-    html.writeln('window.addEventListener("resize",applyScale);');
-    html.writeln('</script>');
     html.writeln('</head>');
     html.writeln('<body>');
     html.writeln('<div class="scale-container">');
@@ -767,6 +758,15 @@ body {
 
     html.writeln('</div>');
     html.writeln('</div>');
+    html.writeln('<script>');
+    html.writeln('function applyScale(){');
+    html.writeln('  var s=window.innerWidth/800;');
+    html.writeln('  var c=document.querySelector(".scale-container");');
+    html.writeln('  if(c){c.style.transform="scale("+s+")";document.body.style.height=(2000*s)+"px";}');
+    html.writeln('}');
+    html.writeln('applyScale();');
+    html.writeln('window.addEventListener("resize",applyScale);');
+    html.writeln('</script>');
     html.writeln('</body>');
     html.writeln('</html>');
 

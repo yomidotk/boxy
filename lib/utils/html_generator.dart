@@ -456,19 +456,28 @@ body {
                 '<svg width="${chartW.toStringAsFixed(0)}" height="${chartH.toStringAsFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:block;">$bars</svg>';
               break;
             case ChartType.line:
-              final vals2 = [0.40, 0.80, 0.55, 1.0, 0.65, 0.30, 0.90];
-              final pts = vals2.asMap().entries.map((e) {
-                final px = (chartW / (vals2.length - 1) * e.key);
-                final py = chartH - chartH * e.value;
-                return Offset(px, py);
-              }).toList();
-              String polyline = pts.map((p) => '${p.dx.toStringAsFixed(1)},${p.dy.toStringAsFixed(1)}').join(' ');
-              String areaPoints = '0,${chartH.toStringAsFixed(1)} $polyline ${chartW.toStringAsFixed(1)},${chartH.toStringAsFixed(1)}';
+              final vals2 = [0.42, 0.78, 0.55, 0.91, 0.63, 0.38, 0.85];
+              final pts2 = List.generate(vals2.length, (i) => Offset(
+                chartW / (vals2.length - 1) * i,
+                chartH - chartH * vals2[i],
+              ));
+              // Build cubic bezier path (same algorithm as Flutter canvas)
+              String curvePath = 'M ${pts2[0].dx.toStringAsFixed(1)},${pts2[0].dy.toStringAsFixed(1)}';
+              for (int i = 0; i < pts2.length - 1; i++) {
+                final midX = (pts2[i].dx + pts2[i+1].dx) / 2;
+                curvePath += ' C ${midX.toStringAsFixed(1)},${pts2[i].dy.toStringAsFixed(1)}'
+                             ' ${midX.toStringAsFixed(1)},${pts2[i+1].dy.toStringAsFixed(1)}'
+                             ' ${pts2[i+1].dx.toStringAsFixed(1)},${pts2[i+1].dy.toStringAsFixed(1)}';
+              }
+              final fillPath2 = 'M 0,${chartH.toStringAsFixed(1)} L ${pts2[0].dx.toStringAsFixed(1)},${pts2[0].dy.toStringAsFixed(1)}'
+                + curvePath.substring(curvePath.indexOf(' '))
+                + ' L ${chartW.toStringAsFixed(1)},${chartH.toStringAsFixed(1)} Z';
+              final bgHex2 = _colorToCss(item.backgroundColor, '#fff');
               content = '<strong style="font-size:12px;">Analytics</strong>'
                 '<svg width="${chartW.toStringAsFixed(0)}" height="${chartH.toStringAsFixed(0)}" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:block;">'
-                  '<polygon points="$areaPoints" fill="$cHex" opacity="0.12"/>'
-                  '<polyline points="$polyline" fill="none" stroke="$cHex" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
-                  '${pts.map((p) => '<circle cx="${p.dx.toStringAsFixed(1)}" cy="${p.dy.toStringAsFixed(1)}" r="3" fill="${_colorToCss(item.backgroundColor, '#fff')}" stroke="$cHex" stroke-width="1.5"/>').join()}'
+                  '<path d="$fillPath2" fill="$cHex" opacity="0.12"/>'
+                  '<path d="$curvePath" fill="none" stroke="$cHex" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+                  '${pts2.map((p) => '<circle cx="${p.dx.toStringAsFixed(1)}" cy="${p.dy.toStringAsFixed(1)}" r="3.5" fill="$bgHex2" stroke="$cHex" stroke-width="1.5"/>').join()}'
                 '</svg>';
               break;
             case ChartType.pie:

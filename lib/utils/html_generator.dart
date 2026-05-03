@@ -24,16 +24,11 @@ body {
   background-color: #f0f2f5;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
-.scale-container {
-  transform-origin: top left;
-  width: 800px;
-}
 .boxy-wrapper {
-  width: 800px;
-  height: 2000px;
+  width: 100vw;
+  height: 250vw;
   position: relative;
   background-color: transparent;
-  overflow: visible;
 }
 .boxy-item {
   position: absolute;
@@ -189,15 +184,20 @@ body {
       css.writeln("#$id {");
       css.writeln("  z-index: ${i + 1};");
 
+      const double d = 800.0;
       if (item.isFullWidth) {
-        css.writeln("  left: 0px;");
-        css.writeln("  width: 800px;");
+        css.writeln("  left: 0;");
+        css.writeln("  width: 100vw;");
       } else {
-        css.writeln("  left: ${item.position.dx.toStringAsFixed(1)}px;");
-        css.writeln("  width: ${item.size.width.toStringAsFixed(1)}px;");
+        final lv = (item.position.dx / d * 100).toStringAsFixed(4);
+        final wv = (item.size.width  / d * 100).toStringAsFixed(4);
+        css.writeln("  left: ${lv}vw;");
+        css.writeln("  width: ${wv}vw;");
       }
-      css.writeln("  top: ${item.position.dy.toStringAsFixed(1)}px;");
-      css.writeln("  height: ${item.size.height.toStringAsFixed(1)}px;");
+      final tv = (item.position.dy  / d * 100).toStringAsFixed(4);
+      final hv = (item.size.height  / d * 100).toStringAsFixed(4);
+      css.writeln("  top: ${tv}vw;");
+      css.writeln("  height: ${hv}vw;");
 
       if (item.rotation != 0) {
         css.writeln("  transform: rotate(${item.rotation}deg);");
@@ -446,7 +446,6 @@ body {
     html.writeln('</style>');
     html.writeln('</head>');
     html.writeln('<body>');
-    html.writeln('<div class="scale-container">');
     html.writeln('<div class="boxy-wrapper">');
 
     for (var item in items) {
@@ -757,16 +756,6 @@ body {
     }
 
     html.writeln('</div>');
-    html.writeln('</div>');
-    html.writeln('<script>');
-    html.writeln('function applyScale(){');
-    html.writeln('  var s=window.innerWidth/800;');
-    html.writeln('  var c=document.querySelector(".scale-container");');
-    html.writeln('  if(c){c.style.transform="scale("+s+")";document.body.style.height=(2000*s)+"px";}');
-    html.writeln('}');
-    html.writeln('applyScale();');
-    html.writeln('window.addEventListener("resize",applyScale);');
-    html.writeln('</script>');
     html.writeln('</body>');
     html.writeln('</html>');
 

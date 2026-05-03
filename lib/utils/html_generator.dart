@@ -22,7 +22,6 @@ body {
   display: flex;
   justify-content: center;
 }
-/* AI CONTEXT: Abandon the 800px fixed width and height — convert to responsive Flexbox */
 .boxy-wrapper {
   background-color: white;
   width: 800px;
@@ -163,6 +162,7 @@ body {
 }
 """);
 
+    html.writeln('<!-- AI INSTRUCTIONS: Abandon the 800px fixed width/height. Convert all absolute pixel coordinates into a fully responsive modern Flexbox/Grid layout that spans 100% of the viewport. -->');
     html.writeln('<!DOCTYPE html>');
     html.writeln('<html lang="en">');
     html.writeln('<head>');

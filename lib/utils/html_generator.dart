@@ -22,6 +22,7 @@ body {
   display: flex;
   justify-content: center;
 }
+/* AI CONTEXT: Abandon the 800px fixed width and height — convert to responsive Flexbox */
 .boxy-wrapper {
   background-color: white;
   width: 800px;

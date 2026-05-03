@@ -23,11 +23,10 @@ body {
   justify-content: center;
 }
 .boxy-wrapper {
-  background-color: white;
   width: 100%;
   min-height: 100vh;
   position: relative;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  background-color: transparent;
   overflow: hidden;
 }
 .boxy-item {
@@ -166,7 +165,7 @@ body {
       '<!-- AI INSTRUCTIONS: Abandon the 800px fixed width/height and the whole .boxy-wrapper rules. Convert all absolute pixel coordinates into a fully responsive modern Flexbox/Grid layout that spans 100% of the viewport. -->',
     );
     html.writeln(
-      '<!-- AI INSTRUCTIONS: Do not arbitrarily center or stretch elements. Convert all absolute values (left, top, width, height) for any item into exact percentages based on the original 800px canvas so everything scales proportionally without losing its original shape. Use responsive Flexbox/Grid for the overall layout and positioning. However, maintain the intrinsic sizing (use px, rem, or standard padding) for UI components like buttons, text, and inputs so they do not deform or stretch. Only use proportional percentages for spacing, margins, and layout gaps, not for the buttons themselves. -->',
+      '<!-- AI INSTRUCTIONS: Remove the .boxy-wrapper div entirely in your final code. Apply the responsive layout directly to the semantic HTML structure (like <body> or <main>). -->',
     );
     html.writeln('<!DOCTYPE html>');
     html.writeln('<html lang="en">');

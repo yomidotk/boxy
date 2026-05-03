@@ -168,10 +168,10 @@ body {
 """);
 
     html.writeln(
-      '<!-- AI INSTRUCTIONS: Abandon the 800px fixed width/height and the whole .boxy-wrapper rules. Convert all absolute pixel coordinates into a fully responsive modern Flexbox/Grid layout that spans 100% of the viewport. -->',
+      '<!-- AI INSTRUCTIONS: CRITICAL SPATIAL BLUEPRINT. This code uses absolute positioning and viewport units to create a strict visual map. Your task is to convert this into production-ready semantic HTML and CSS. RULES: 1. Preserve the EXACT visual layout, overlapping, and spatial relationships defined by these absolute coordinates. 2. DO NOT blindly apply Flexbox, Grid, or auto-flow properties if they alter the current visual placement. 3. Treat the current coordinates as the absolute ground truth for where elements belong. 4. Replace the wrapper with standard semantic tags, but the visual output must remain 100 percent identical to this blueprint. -->',
     );
     html.writeln(
-      '<!-- AI INSTRUCTIONS: Remove the .boxy-wrapper div entirely in your final code. Apply the responsive layout directly to the semantic HTML structure (like <body> or <main>). -->',
+      '<!-- AI INSTRUCTIONS: CRITICAL SPATIAL BLUEPRINT. This code uses absolute positioning and viewport units to create a strict visual map. Your task is to convert this into production-ready semantic HTML and CSS. RULES: 1. Preserve the EXACT visual layout, overlapping, and spatial relationships defined by these absolute coordinates. 2. DO NOT blindly apply Flexbox, Grid, or auto-flow properties if they alter the current visual placement. 3. Treat the current coordinates as the absolute ground truth for where elements belong. 4. Replace the wrapper with standard semantic tags, but the visual output must remain 100 percent identical to this blueprint. -->',
     );
     html.writeln('<!DOCTYPE html>');
     html.writeln('<html lang="en">');

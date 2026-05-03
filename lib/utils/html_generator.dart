@@ -23,6 +23,7 @@ body {
   justify-content: center;
 }
 .boxy-wrapper {
+  display: contents;
   width: 100%;
   min-height: 100vh;
   position: relative;

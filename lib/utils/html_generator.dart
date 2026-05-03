@@ -24,8 +24,8 @@ body {
 }
 .boxy-wrapper {
   background-color: white;
-  width: 800px;
-  height: 2000px;
+  width: 100%;
+  min-height: 100vh;
   position: relative;
   box-shadow: 0 10px 40px rgba(0,0,0,0.1);
   overflow: hidden;
@@ -184,14 +184,19 @@ body {
       css.writeln("#$id {");
       css.writeln("  z-index: ${i + 1};");
 
+      const double canvasW = 800.0;
+      const double canvasH = 2000.0;
       if (item.isFullWidth) {
-        css.writeln("  left: 0;");
-        css.writeln("  width: 800px;");
+        css.writeln("  left: 0%;");
+        css.writeln("  width: 100%;");
       } else {
-        css.writeln("  left: ${item.position.dx}px;");
-        css.writeln("  width: ${item.size.width}px;");
+        final leftPct  = (item.position.dx / canvasW * 100).toStringAsFixed(2);
+        final widthPct = (item.size.width  / canvasW * 100).toStringAsFixed(2);
+        css.writeln("  left: $leftPct%;");
+        css.writeln("  width: $widthPct%;");
       }
-      css.writeln("  top: ${item.position.dy}px;");
+      final topPct = (item.position.dy / canvasH * 100).toStringAsFixed(2);
+      css.writeln("  top: $topPct%;");
       css.writeln("  height: ${item.size.height}px;");
 
       if (item.rotation != 0) {

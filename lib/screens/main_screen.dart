@@ -25,71 +25,149 @@ class _MainScreenState extends State<MainScreen> {
     final provider = Provider.of<LayoutProvider>(context, listen: false);
     final htmlCode = HtmlGenerator.generate(provider.items);
 
+    const Color bg       = Color(0xFF0A0A0A);
+    const Color surface  = Color(0xFF1A1A1A);
+    const Color accent   = Color(0xFF8B3DFF);
+    const Color textPrimary   = Colors.white;
+    const Color textSecondary = Color(0xFF888888);
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Export Design"),
-        content: SingleChildScrollView(
+      builder: (context) => Dialog(
+        backgroundColor: bg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          width: 520,
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "HTML/CSS Blueprint",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              // Header
+              Row(
+                children: [
+                  const Icon(Icons.code_rounded, color: accent, size: 20),
+                  const SizedBox(width: 10),
+                  const Text(
+                    "Export Design",
+                    style: TextStyle(
+                      color: textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close, color: textSecondary, size: 18),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
+
+              // Label
+              const Text(
+                "HTML / CSS",
+                style: TextStyle(
+                  color: textSecondary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Code box
               Container(
                 width: double.maxFinite,
                 height: 200,
-                padding: const EdgeInsets.all(8),
-                color: Colors.grey[200],
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: surface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white10),
+                ),
                 child: SingleChildScrollView(
                   child: SelectableText(
                     htmlCode,
                     style: const TextStyle(
                       fontFamily: 'monospace',
-                      fontSize: 12,
+                      fontSize: 11.5,
+                      color: Color(0xFFCDD6F4),
+                      height: 1.5,
                     ),
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // Action buttons
+              Row(
+                children: [
+                  // Copy Code
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: htmlCode));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: surface,
+                            content: const Text(
+                              "Code copied to clipboard!",
+                              style: TextStyle(color: textPrimary),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.copy_rounded, size: 15),
+                      label: const Text("Copy Code"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: textPrimary,
+                        side: const BorderSide(color: Colors.white24),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+
+                  // Save Image
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        final success = await Exporter.saveCanvas(_canvasKey);
+                        if (!mounted) return;
+                        messenger.showSnackBar(
+                          SnackBar(
+                            backgroundColor: surface,
+                            content: Text(
+                              success ? "Image downloaded!" : "Failed to save image.",
+                              style: const TextStyle(color: textPrimary),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.download_rounded, size: 15),
+                      label: const Text("Save Image"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accent,
+                        foregroundColor: textPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: htmlCode));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Code copied to clipboard!")),
-              );
-            },
-            child: const Text("Copy Code"),
-          ),
-          ElevatedButton.icon(
-            onPressed: () async {
-              final messenger = ScaffoldMessenger.of(context);
-              bool success = await Exporter.saveCanvas(_canvasKey);
-              if (!mounted) return;
-
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(
-                    success
-                        ? "Image saved to Gallery!"
-                        : "Failed to save image.",
-                  ),
-                ),
-              );
-            },
-            icon: const Icon(Icons.image),
-            label: const Text("Save Image"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Close"),
-          ),
-        ],
       ),
     );
   }

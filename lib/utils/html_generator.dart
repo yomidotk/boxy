@@ -12,6 +12,11 @@ class HtmlGenerator {
     StringBuffer html = StringBuffer();
     StringBuffer css = StringBuffer();
 
+    final double maxBottom = items.isEmpty
+        ? 600
+        : items.map((e) => e.position.dy + e.size.height).reduce((a, b) => a > b ? a : b);
+    final String wrapperH = ((maxBottom + 40) / 800 * 100).toStringAsFixed(4);
+
     css.writeln("""
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
@@ -26,7 +31,7 @@ body {
 }
 .boxy-wrapper {
   width: 100vw;
-  height: 250vw;
+  height: ${wrapperH}vw;
   position: relative;
   background-color: transparent;
 }

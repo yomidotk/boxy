@@ -22,7 +22,7 @@ body {
 }
 .scale-container {
   transform-origin: top left;
-  transform: scale(min(calc(100vw / 800), 1));
+  transform: scale(calc(100vw / 800));
 }
 .boxy-wrapper {
   width: 800px;

@@ -14,18 +14,21 @@ class HtmlGenerator {
 
     css.writeln("""
 *, *::before, *::after { box-sizing: border-box; }
-body {
+html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+body {
   background-color: #f0f2f5;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 .boxy-wrapper {
-  width: 100%;
-  height: 100vh;
+  width: 100vw;
+  min-height: 100vh;
   position: relative;
   background-color: transparent;
-  overflow: hidden;
 }
 .boxy-item {
   position: absolute;

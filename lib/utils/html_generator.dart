@@ -165,6 +165,9 @@ body {
     html.writeln(
       '<!-- AI INSTRUCTIONS: Abandon the 800px fixed width/height and the whole .boxy-wrapper rules. Convert all absolute pixel coordinates into a fully responsive modern Flexbox/Grid layout that spans 100% of the viewport. -->',
     );
+    html.writeln(
+      '<!-- AI INSTRUCTIONS: Do not arbitrarily center or stretch elements. Convert all absolute values (left, top, width, height) for any item into exact percentages based on the original 800px canvas so everything scales proportionally without losing its original shape. -->',
+    );
     html.writeln('<!DOCTYPE html>');
     html.writeln('<html lang="en">');
     html.writeln('<head>');

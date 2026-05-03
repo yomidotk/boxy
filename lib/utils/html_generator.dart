@@ -168,10 +168,15 @@ body {
 """);
 
     html.writeln(
-      '<!-- AI INSTRUCTIONS: CRITICAL SPATIAL BLUEPRINT. This code uses absolute positioning and viewport units to create a strict visual map. Your task is to convert this into production-ready semantic HTML and CSS. RULES: 1. Preserve the EXACT visual layout, overlapping, and spatial relationships defined by these absolute coordinates. 2. DO NOT blindly apply Flexbox, Grid, or auto-flow properties if they alter the current visual placement. 3. Treat the current coordinates as the absolute ground truth for where elements belong. 4. Replace the wrapper with standard semantic tags, but the visual output must remain 100 percent identical to this blueprint. -->',
-    );
-    html.writeln(
-      '<!-- AI INSTRUCTIONS: CRITICAL SPATIAL BLUEPRINT. This code uses absolute positioning and viewport units to create a strict visual map. Your task is to convert this into production-ready semantic HTML and CSS. RULES: 1. Preserve the EXACT visual layout, overlapping, and spatial relationships defined by these absolute coordinates. 2. DO NOT blindly apply Flexbox, Grid, or auto-flow properties if they alter the current visual placement. 3. Treat the current coordinates as the absolute ground truth for where elements belong. 4. Replace the wrapper with standard semantic tags, but the visual output must remain 100 percent identical to this blueprint. -->',
+      '<!-- AI INSTRUCTIONS:
+
+      This file is the PRIMARY LAYOUT BLUEPRINT.
+
+      Treat it as the source of truth for structure, spacing, and visual hierarchy use teh layout to build a full advanced profesional UI  highly professional and modern you are free to change style as long you keep layout same.
+
+      - Remove unused or redundant CSS that is not referenced by this layout 
+
+      -->',
     );
     html.writeln('<!DOCTYPE html>');
     html.writeln('<html lang="en">');

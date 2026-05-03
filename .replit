@@ -39,6 +39,7 @@ localPort = 8080
 externalPort = 8080
 
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "autoscale"
 build = ["flutter", "build", "web", "--release"]
 publicDir = "build/web"
+run = ["node", "server.js"]

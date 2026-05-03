@@ -20,13 +20,9 @@ body {
   background-color: #f0f2f5;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
-.scale-container {
-  transform-origin: top left;
-  transform: scale(calc(100vw / 800));
-}
 .boxy-wrapper {
-  width: 800px;
-  height: 2000px;
+  width: 100%;
+  height: 100vh;
   position: relative;
   background-color: transparent;
   overflow: hidden;
@@ -185,15 +181,21 @@ body {
       css.writeln("#$id {");
       css.writeln("  z-index: ${i + 1};");
 
+      const double canvasW = 800.0;
+      const double canvasH = 2000.0;
       if (item.isFullWidth) {
-        css.writeln("  left: 0px;");
-        css.writeln("  width: 800px;");
+        css.writeln("  left: 0%;");
+        css.writeln("  width: 100%;");
       } else {
-        css.writeln("  left: ${item.position.dx.toStringAsFixed(1)}px;");
-        css.writeln("  width: ${item.size.width.toStringAsFixed(1)}px;");
+        final leftPct  = (item.position.dx / canvasW * 100).toStringAsFixed(4);
+        final widthPct = (item.size.width  / canvasW * 100).toStringAsFixed(4);
+        css.writeln("  left: $leftPct%;");
+        css.writeln("  width: $widthPct%;");
       }
-      css.writeln("  top: ${item.position.dy.toStringAsFixed(1)}px;");
-      css.writeln("  height: ${item.size.height.toStringAsFixed(1)}px;");
+      final topPct    = (item.position.dy  / canvasH * 100).toStringAsFixed(4);
+      final heightPct = (item.size.height  / canvasH * 100).toStringAsFixed(4);
+      css.writeln("  top: $topPct%;");
+      css.writeln("  height: $heightPct%;");
 
       if (item.rotation != 0) {
         css.writeln("  transform: rotate(${item.rotation}deg);");
@@ -442,7 +444,6 @@ body {
     html.writeln('</style>');
     html.writeln('</head>');
     html.writeln('<body>');
-    html.writeln('<div class="scale-container">');
     html.writeln('<div class="boxy-wrapper">');
 
     for (var item in items) {
@@ -752,7 +753,6 @@ body {
       html.writeln('  <$tag id="$id" class="boxy-item">$content</$tag>');
     }
 
-    html.writeln('</div>');
     html.writeln('</div>');
     html.writeln('</body>');
     html.writeln('</html>');

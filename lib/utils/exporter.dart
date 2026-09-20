@@ -1,8 +1,10 @@
-import 'dart:html' as html;
+import 'dart:js_interop';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:web/web.dart' as web;
 
 class Exporter {
   // The page is always 800px wide, centered inside the 5000px canvas stack.
@@ -46,16 +48,22 @@ class Exporter {
       if (byteData == null) return false;
 
       final Uint8List bytes = byteData.buffer.asUint8List();
-      final blob = html.Blob([bytes], 'image/png');
-      final url = html.Url.createObjectUrlFromBlob(blob);
 
-      html.AnchorElement(href: url)
-        ..setAttribute(
-            'download',
-            'boxy_export_${DateTime.now().millisecondsSinceEpoch}.png')
-        ..click();
+      // Use package:web + dart:js_interop instead of deprecated dart:html
+      final jsBytes = bytes.toJS;
+      final blob = web.Blob(
+        [jsBytes].toJS,
+        web.BlobPropertyBag(type: 'image/png'),
+      );
+      final url = web.URL.createObjectURL(blob);
 
-      html.Url.revokeObjectUrl(url);
+      final anchor = web.document.createElement('a') as web.HTMLAnchorElement;
+      anchor.href = url;
+      anchor.download =
+          'boxy_export_${DateTime.now().millisecondsSinceEpoch}.png';
+      anchor.click();
+
+      web.URL.revokeObjectURL(url);
       return true;
     } catch (e) {
       debugPrint('Error exporting image: $e');

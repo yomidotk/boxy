@@ -168,15 +168,17 @@ body {
 """);
 
     html.writeln(
-      '<!-- AI INSTRUCTIONS:
+      '''<!-- AI INSTRUCTIONS:
 
       This file is the PRIMARY LAYOUT BLUEPRINT.
 
-      Treat it as the source of truth for structure, spacing, and visual hierarchy use teh layout to build a full advanced profesional UI  highly professional and modern you are free to change style as long you keep layout same.
+      Treat it as the source of truth for structure, spacing, and visual hierarchy.
+      Use the layout to build a full advanced professional UI — highly professional
+      and modern. You are free to change style as long as you keep the layout the same.
 
-      - Remove unused or redundant CSS that is not referenced by this layout 
+      - Remove unused or redundant CSS that is not referenced by this layout.
 
-      -->',
+      -->''',
     );
     html.writeln('<!DOCTYPE html>');
     html.writeln('<html lang="en">');
@@ -361,10 +363,11 @@ body {
             "  background-color: ${_colorToCss(item.backgroundColor, '#EEEEEE')};",
           );
           css.writeln("  border-radius: 50%;");
-          if (item.borderColor != null)
+          if (item.borderColor != null) {
             css.writeln(
               "  border: 2px solid ${_colorToCss(item.borderColor, 'transparent')};",
             );
+          }
           css.writeln("  justify-content: center;");
           break;
         case ItemType.chart:
@@ -372,10 +375,11 @@ body {
             "  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};",
           );
           css.writeln("  border-radius: ${item.borderRadius}px;");
-          if (item.borderColor != null)
+          if (item.borderColor != null) {
             css.writeln(
               "  border: 1px solid ${_colorToCss(item.borderColor, 'transparent')};",
             );
+          }
           css.writeln("  padding: 16px;");
           css.writeln("  color: ${_colorToCss(item.textColor, '#000000')};");
           css.writeln("  flex-direction: column;");
@@ -405,10 +409,11 @@ body {
             "  background-color: ${_colorToCss(item.backgroundColor, '#FFFFFF')};",
           );
           css.writeln("  border-radius: ${item.borderRadius}px;");
-          if (item.borderColor != null)
+          if (item.borderColor != null) {
             css.writeln(
               "  border: 1px solid ${_colorToCss(item.borderColor, 'transparent')};",
             );
+          }
           css.writeln("  box-shadow: 0 4px 15px rgba(0,0,0,0.08);");
           css.writeln("  color: ${_colorToCss(item.textColor, '#000000')};");
           css.writeln("  padding: 20px;");
@@ -611,8 +616,8 @@ body {
                     ' ${pts2[i + 1].dx.toStringAsFixed(1)},${pts2[i + 1].dy.toStringAsFixed(1)}';
               }
               final fillPath2 =
-                  'M 0,${chartH.toStringAsFixed(1)} L ${pts2[0].dx.toStringAsFixed(1)},${pts2[0].dy.toStringAsFixed(1)}' +
-                  curvePath.substring(curvePath.indexOf(' ')) +
+                  'M 0,${chartH.toStringAsFixed(1)} L ${pts2[0].dx.toStringAsFixed(1)},${pts2[0].dy.toStringAsFixed(1)}'
+                  '${curvePath.substring(curvePath.indexOf(' '))}'
                   ' L ${chartW.toStringAsFixed(1)},${chartH.toStringAsFixed(1)} Z';
               final bgHex2 = _colorToCss(item.backgroundColor, '#fff');
               content =
@@ -752,10 +757,6 @@ body {
           content = rows;
           break;
 
-        default:
-          content = item.textContent.isNotEmpty
-              ? item.textContent
-              : item.type.name.toUpperCase();
       }
 
       if (item.aiContext.isNotEmpty) {

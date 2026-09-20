@@ -284,7 +284,7 @@ class CanvasItemWidget extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 4),
               itemCount: item.listItems.length,
-              separatorBuilder: (_, __) => Divider(height: 1, thickness: 1, color: dividerColor, indent: 48),
+              separatorBuilder: (_, _) => Divider(height: 1, thickness: 1, color: dividerColor, indent: 48),
               itemBuilder: (_, index) {
                 final entry = item.listItems[index];
                 return Padding(

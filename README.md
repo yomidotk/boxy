@@ -1,4 +1,4 @@
-﻿# 📦 Boxy
+# 📦 Boxy
 
 **A minimalist layout sketching tool for developers and vibe coders.**
 
@@ -122,7 +122,7 @@ The **Theme** tab provides a one-click theming system:
 - Captures the canvas at **3× pixel density** for crisp exports
 - Crops to the **800 px page column** (strips the infinite canvas padding)
 - Downloaded automatically as `boxy_export_<timestamp>.png`
-- ⚠️ Web-only feature (uses `dart:html`)
+- ⚠️ App-only feature (Android, iOS, Desktop)
 
 ### 🎨 Design Aesthetic
 
@@ -152,7 +152,7 @@ The **Theme** tab provides a one-click theming system:
 | **State Management** | Provider |
 | **Canvas Rendering** | `CustomPaint`, `RepaintBoundary` |
 | **HTML Export** | Custom `HtmlGenerator` (scales via `vw` units) |
-| **Image Export** | `dart:html` + canvas crop at 3× pixel ratio |
+| **Image Export** | `package:web` + canvas crop at 3× pixel ratio |
 | **Splash Screen** | `flutter_native_splash` |
 | **Icons** | `flutter_launcher_icons` |
 
@@ -162,12 +162,12 @@ The **Theme** tab provides a one-click theming system:
 
 | Platform | Status |
 |----------|--------|
-| **Web** | ✅ Primary target (image export uses `dart:html`) |
 | **Android** | ✅ Supported |
 | **iOS** | ✅ Supported |
 | **Desktop** | ✅ Supported (Windows · macOS · Linux) |
+| **Web** | ⚠️ Not optimized — UI is not designed for browser use |
 
-> **Note:** The PNG image export relies on `dart:html` and is fully functional on Web. On native platforms, the HTML code export works as expected.
+> **Note:** Boxy is built as a **native app** (Android, iOS, Desktop). A web build exists but the UI has not been optimized for browsers and is not officially supported.
 
 ---
 

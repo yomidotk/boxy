@@ -21,6 +21,45 @@ class _MainScreenState extends State<MainScreen> {
   final GlobalKey _canvasKey = GlobalKey();
   bool _isPanelOpen = true;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showWipBanner());
+  }
+
+  void _showWipBanner() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color(0xFF1A1A1A),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 6),
+        content: Row(
+          children: [
+            const Text('🚧', style: TextStyle(fontSize: 18)),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Boxy is in early development — some features may be incomplete or change.',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ),
+        action: SnackBarAction(
+          label: 'Got it',
+          textColor: Color(0xFF8B3DFF),
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+
   void _showExportDialog(BuildContext context) {
     final provider = Provider.of<LayoutProvider>(context, listen: false);
     final htmlCode = HtmlGenerator.generate(provider.items);

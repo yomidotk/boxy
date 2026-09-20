@@ -4,7 +4,11 @@
 
 Boxy is a Flutter-based design canvas that helps you quickly sketch UI layouts and export them as clean HTML/CSS code or PNG mockup images. Perfect for rapid prototyping, wireframing, and communicating design ideas to your team.
 
+> [!NOTE]
+> 🚧 **Early Development** — Boxy is actively being built. Some features may be incomplete, rough around the edges, or subject to change. Feedback and contributions are welcome!
+
 ---
+
 
 ## 🎯 Goal
 
